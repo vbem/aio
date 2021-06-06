@@ -73,6 +73,11 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && log "installing jq" \
 && apk add --no-cache jq \
 \
+# https://pkgs.alpinelinux.org/packages?name=rclone&branch=v3.13&arch=x86_64
+# https://rclone.org/
+&& log "installing rclone" \
+&& apk add --no-cache rclone \
+\
 # https://help.aliyun.com/document_detail/121541.html , not all versions support BushBox, so we LOCK VERSION!!!
 # https://github.com/aliyun/aliyun-cli/releases
 && log "installing aliyun-cli" \
