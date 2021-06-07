@@ -18,8 +18,11 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 # && sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories \
 && cat /etc/apk/repositories \
 \
+# https://pkgs.alpinelinux.org/packages?name=bash&branch=v3.13&arch=x86_64
+&& log "installing 'bash'" \
+&& apk add --no-cache bash \
+\
 # https://pkgs.alpinelinux.org/packages?name=curl&branch=v3.13&arch=x86_64
-# https://pkgs.alpinelinux.org/package/v3.12/main/x86_64/curl
 && log "installing 'curl'" \
 && apk add --no-cache curl \
 \
