@@ -26,6 +26,10 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && log "installing 'curl'" \
 && apk add --no-cache curl \
 \
+# https://pkgs.alpinelinux.org/packages?name=iputils&branch=v3.13&arch=x86_64
+&& log "installing 'iputils'" \
+&& apk add --no-cache iputils \
+\
 # https://pkgs.alpinelinux.org/packages?name=tzdata&branch=v3.13&arch=x86_64
 # https://wiki.alpinelinux.org/wiki/Setting_the_timezone
 && log "installing tzdata and set timezone as 'Asia/Shanghai'" \
