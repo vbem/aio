@@ -7,7 +7,7 @@ HEALTHCHECK --timeout=1s --retries=1 CMD true || false
 
 ENV \
 LANG=C.UTF-8 \
-PS1='\[\e[1;7m\] $\?=$? $(. /etc/os-release && echo $ID-$VERSION_ID) \u@$(hostname -i)@\H:\w \[\e[0m\]\n\$ '
+PS1='\[\e[1;7;94m\] ?=$? $(. /etc/os-release && echo $ID-$VERSION_ID) \u@$(hostname -i)@\H:\w \[\e[0m\]\n\$ '
 
 RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
 # https://pkgs.alpinelinux.org/
