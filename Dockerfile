@@ -1,35 +1,40 @@
+# https://alpinelinux.org/
 # https://hub.docker.com/_/alpine
 FROM alpine:3.14
 
-WORKDIR /root
-
-HEALTHCHECK --timeout=1s --retries=1 CMD true || false
-
-ENV \
-LANG=C.UTF-8 \
-PS1='\[\e[1;7;94m\] ?=$? $(. /etc/os-release && echo $ID-$VERSION_ID) \u@$(hostname -i)@\H:\w \[\e[0m\]\n\$ '
+# https://github.com/opencontainers/image-spec/blob/master/annotations.md
+LABEL \ 
+org.opencontainers.image.title="devops-allinone" \
+org.opencontainers.image.description="All-In-One docker imager for DevOps and debugging." \
+org.opencontainers.image.authors="i@lilei.tech" \
+org.opencontainers.image.source="https://github.com/vbem/devops-allinone" \
+org.opencontainers.image.url="https://hub.docker.com/r/vbem/devops-allinone"
 
 RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
-# https://pkgs.alpinelinux.org/
+\
+# https://wiki.alpinelinux.org/wiki/Alpine_setup_scripts#setup-apkrepos
+# https://mirrors.alpinelinux.org/
 # https://developer.aliyun.com/mirror/alpine
 # https://mirrors.tuna.tsinghua.edu.cn/help/alpine/
 && log "updating apk repositories mirror" \
+&& echo "@edgetesting https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
 && sed -i "s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g" /etc/apk/repositories \
 # && sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories \
 && cat /etc/apk/repositories \
 \
-# https://pkgs.alpinelinux.org/packages?name=tzdata&branch=v3.13&arch=x86_64
-# https://wiki.alpinelinux.org/wiki/Setting_the_timezone
-&& log "installing tzdata and set timezone as 'Asia/Shanghai'" \
-&& apk add --no-cache tzdata \
-&& cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-&& echo "Asia/Shanghai" > /etc/timezone \
-&& apk del tzdata \
-\
+# https://docs.alpinelinux.org/user-handbook/0.1a/Working/apk.html
+# https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
+# https://wiki.alpinelinux.org/wiki/Comparison_with_other_distros#Comparison_chart.2FRosetta_Stone
 # https://pkgs.alpinelinux.org
-&& apps="bash curl iputils docker-cli git openjdk8 maven ansible jq yq rclone npm py3-pip" \
+&& apps="tzdata alpine-conf bash curl iputils docker-cli git openjdk8 maven jq yq rclone npm py3-pip kubectl@edgetesting helm@edgetesting" \
 && log "installing $apps" \
 && apk add --no-cache $apps \
+\
+# https://wiki.alpinelinux.org/wiki/Alpine_setup_scripts#setup-timezone
+&& log "setting timezone as 'Asia/Shanghai'" \
+&& setup-timezone -z Asia/Shanghai \
+# && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+# && echo "Asia/Shanghai" > /etc/timezone
 \
 # https://developer.aliyun.com/mirror/NPM
 # https://npm.taobao.org/mirrors
@@ -49,16 +54,15 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && wget https://github.com/aliyun/aliyun-cli/releases/download/v3.0.62/aliyun-cli-linux-3.0.62-amd64.tgz -O- | tar xz \
 && chown root:root aliyun && chmod 755 aliyun && mv aliyun /usr/local/bin/ \
 \
-# https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux
-&& log "installing kubectl" \
-&& KUBECTL_VERSION=$(wget -O- https://dl.k8s.io/release/stable.txt) \
-&& wget https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -O kubectl \
-&& chmod a+x kubectl && mv kubectl /usr/local/bin/ \
-\
-# https://helm.sh/
-&& log "installing helm" \
-&& wget "https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz" -O- | tar xz \
-&& mv linux-amd64/helm helm && rm -rf linux-amd64 && chown root:root helm && chmod 755 helm && mv helm /usr/local/bin/ \
-\
 && log "cleaning all cache files" \
 && rm -rf ~/.ash_history ~/.cache/ ~/.config/ ~/.npm* ~/* /var/cache/apk/* /tmp/*
+
+# HEALTHCHECK --timeout=1s --retries=1 CMD true || false
+
+WORKDIR /root
+
+ENV \
+LANG=C.UTF-8 \
+# PS1='\[\e[1;7;94m\] ?=$? $(. /etc/os-release && echo $ID-$VERSION_ID) \u@$(hostname -i)@\H:\w \[\e[0m\]\n\$ ' \
+PS1='\[\e]0;\u@\h: \w\a\]\[\e[0m\]\[\e[1;97;41m\]$(r=$?; [ $r -ne 0 ] && echo " \\$?=$r ")\[\e[0m\]\[\e[1;97;43m\]$([ 1 -ne $SHLVL ] && echo " \\$SHLVL=$SHLVL ")\[\e[0m\]\[\e[3;37;100m\] $(source /etc/os-release && echo $ID-$VERSION_ID) \[\e[0m\]\[\e[95;40m\] \u\[\e[0m\]\[\e[1;35;40m\]$([ "$(id -ng)" != "$(id -nu)" ] && echo ":$(id -ng)")\[\e[0m\]\[\e[2;90;40m\]@\[\e[0m\]\[\e[3;32;40m\]$(hostname -i)\[\e[0m\]\[\e[2;90;40m\]@\[\e[0m\]\[\e[4;34;40m\]\H\[\e[0m\]\[\e[2;90;40m\]:\[\e[0m\]\[\e[1;33;40m\]$PWD \[\e[0m\]\n\[\e[0m\]\[\e[1;31m\]\$\[\e[0m\] '
+CMD ["/bin/bash"]
