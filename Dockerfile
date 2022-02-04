@@ -1,9 +1,9 @@
 # https://alpinelinux.org/
 # https://hub.docker.com/_/alpine
-FROM alpine:3.14
+FROM alpine:3.15
 
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md
-LABEL \ 
+LABEL \
 org.opencontainers.image.title="devops-allinone" \
 org.opencontainers.image.description="All-In-One docker imager for DevOps and debugging." \
 org.opencontainers.image.authors="i@lilei.tech" \
@@ -26,7 +26,7 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 # https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
 # https://wiki.alpinelinux.org/wiki/Comparison_with_other_distros#Comparison_chart.2FRosetta_Stone
 # https://pkgs.alpinelinux.org
-&& apps="tzdata alpine-conf bash curl iputils docker-cli git openjdk8 maven jq yq rclone npm py3-pip kubectl@edgetesting helm@edgetesting" \
+&& apps="tzdata alpine-conf bash curl iputils docker-cli git openjdk8 maven jq yq rclone npm py3-pip libc6-compat kubectl@edgetesting helm@edgetesting" \
 && log "installing $apps" \
 && apk add --no-cache $apps \
 \
@@ -48,11 +48,9 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && log "setting python3 pip mirror" \
 && echo -e '[global]\nindex-url=https://mirrors.aliyun.com/pypi/simple/\ntrusted-host=mirrors.aliyun.com' > /etc/pip.conf \
 \
-# https://help.aliyun.com/document_detail/121541.html , not all versions support BushBox, so we LOCK VERSION!!!
 # https://github.com/aliyun/aliyun-cli/releases
 && log "installing aliyun-cli" \
-&& wget https://github.com/aliyun/aliyun-cli/releases/download/v3.0.62/aliyun-cli-linux-3.0.62-amd64.tgz -O- | tar xz \
-&& chown root:root aliyun && chmod 755 aliyun && mv aliyun /usr/local/bin/ \
+&& wget https://aliyuncli.alicdn.com/aliyun-cli-linux-latest-amd64.tgz -O- | tar xz && chown root:root aliyun && chmod 755 aliyun && mv aliyun /usr/local/bin/ \
 \
 && log "cleaning all cache files" \
 && rm -rf ~/.ash_history ~/.cache/ ~/.config/ ~/.npm* ~/* /var/cache/apk/* /tmp/*
