@@ -1,6 +1,6 @@
 # https://alpinelinux.org/
 # https://hub.docker.com/_/alpine
-FROM alpine:3.15
+FROM alpine:3.14.3
 
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md
 LABEL \
