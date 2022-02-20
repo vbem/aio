@@ -4,11 +4,11 @@ FROM alpine:3.14.3
 
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md
 LABEL \
-org.opencontainers.image.title="devops-allinone" \
-org.opencontainers.image.description="All-In-One docker imager for DevOps and debugging." \
+org.opencontainers.image.title="aio" \
+org.opencontainers.image.description="All-In-One for DevOps and debugging." \
 org.opencontainers.image.authors="i@lilei.tech" \
-org.opencontainers.image.source="https://github.com/vbem/devops-allinone" \
-org.opencontainers.image.url="https://hub.docker.com/r/vbem/devops-allinone"
+org.opencontainers.image.source="https://github.com/vbem/aio" \
+org.opencontainers.image.url="https://hub.docker.com/r/vbem/aio"
 
 RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
 \
