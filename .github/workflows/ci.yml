@@ -29,10 +29,6 @@ jobs:
       - name: Login docker hub
         run: |
           docker login -u $WF_DOCKERHUB_USER -p ${{ secrets.DOCKERHUB_TOKEN }}
-        
-      - name: Install mikefarah/yq
-        run: |
-          yq -V
           
       - name: Generate image tag
         run: |
