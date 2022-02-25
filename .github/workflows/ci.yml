@@ -9,7 +9,7 @@ env:
 
 jobs:
   build:
-    runs-on: [Linux, X64]
+    runs-on: [ubuntu-latest]
     steps:
     
       - name: Show GitHub context information
