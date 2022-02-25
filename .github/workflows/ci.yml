@@ -21,7 +21,7 @@ jobs:
           echo "Following is toJSON(github):"
           cat << EOF
           ${{ toJSON(github) }}
-          EOF
+          EOF | jq 'del(.token)'
           
       - name: Checkout code repository
         uses: actions/checkout@v2
@@ -32,10 +32,6 @@ jobs:
         
       - name: Install mikefarah/yq
         run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-          sudo add-apt-repository ppa:rmescandon/yq
-          sudo apt update
-          sudo apt install yq -y
           yq -V
           
       - name: Generate image tag
