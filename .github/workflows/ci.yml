@@ -12,50 +12,44 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
     
-      - name: Show GitHub context information
-        run: |
-          echo "Following is toJSON(runner):"
-          cat | jq . <<EOF
-          ${{ toJSON(runner) }}
-          EOF
-          echo "Following is toJSON(github):"
-          cat | jq 'del(.token)' <<EOF
-          ${{ toJSON(github) }}
-          EOF
-          
-      - name: Checkout code repository
-        uses: actions/checkout@v2
+    - name: Show GitHub context information
+      run: |
+        echo "Following is toJSON(runner):"
+        cat | jq . <<EOF
+        ${{ toJSON(runner) }}
+        EOF
+        echo "Following is toJSON(github):"
+        cat | jq 'del(.token)' <<EOF
+        ${{ toJSON(github) }}
+        EOF
+      
+    - name: Checkout code repository
+      uses: actions/checkout@v2
+      
+    - name: Login docker hub
+      run: |
+        docker login -u $WF_DOCKERHUB_USER -p ${{ secrets.DOCKERHUB_TOKEN }}
         
-      - name: Login docker hub
-        run: |
-          docker login -u $WF_DOCKERHUB_USER -p ${{ secrets.DOCKERHUB_PASSWORD }}
-          
-      - name: Update Docker Hub description
-        uses: peter-evans/dockerhub-description@v2
-        with:
-          username: $WF_DOCKERHUB_USER
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+    - name: Generate image tag
+      run: |
+        [[ "${{ github.ref }}" == "refs/tags/"* ]] \
+        && STEP_IMG_TAG=$(basename ${{ github.ref }}) \
+        || STEP_IMG_TAG=$(TZ=CST+8 date +'%y.%m.%d')-$(echo ${{ github.sha }}|cut -c-7)
+        echo STEP_IMG_TAG=$STEP_IMG_TAG | tee -a $GITHUB_ENV
         
-      - name: Generate image tag
-        run: |
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] \
-          && STEP_IMG_TAG=$(basename ${{ github.ref }}) \
-          || STEP_IMG_TAG=$(TZ=CST+8 date +'%y.%m.%d')-$(echo ${{ github.sha }}|cut -c-7)
-          echo STEP_IMG_TAG=$STEP_IMG_TAG | tee -a $GITHUB_ENV
-          
-      - name: Build docker image locally
-        run: |
-          docker build \
-            --build-arg IMG_VER=$STEP_IMG_TAG \
-            --build-arg IMG_REV=${{ github.sha }} \
-            --build-arg IMG_CREATED="$(TZ=CST+8 date --rfc-3339=seconds)" \
-            -t $WF_DOCKERHUB_REPO:$STEP_IMG_TAG \
-            -t $WF_DOCKERHUB_REPO \
-            .
-          docker images
-          docker image inspect $WF_DOCKERHUB_REPO:$STEP_IMG_TAG | jq .[0].ContainerConfig.Labels
-          
-      - name: Push docker image to artifactory
-        run: |
-          docker push $WF_DOCKERHUB_REPO:$STEP_IMG_TAG
-          docker push $WF_DOCKERHUB_REPO
+    - name: Build docker image locally
+      run: |
+        docker build \
+          --build-arg IMG_VER=$STEP_IMG_TAG \
+          --build-arg IMG_REV=${{ github.sha }} \
+          --build-arg IMG_CREATED="$(TZ=CST+8 date --rfc-3339=seconds)" \
+          -t $WF_DOCKERHUB_REPO:$STEP_IMG_TAG \
+          -t $WF_DOCKERHUB_REPO \
+          .
+        docker images
+        docker image inspect $WF_DOCKERHUB_REPO:$STEP_IMG_TAG | jq .[0].ContainerConfig.Labels
+        
+    - name: Push docker image to artifactory
+      run: |
+        docker push $WF_DOCKERHUB_REPO:$STEP_IMG_TAG
+        docker push $WF_DOCKERHUB_REPO
