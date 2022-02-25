@@ -15,13 +15,9 @@ jobs:
       - name: Show GitHub context information
         run: |
           echo "Following is toJSON(runner):"
-          cat << EOF
-          ${{ toJSON(runner) }}
-          EOF
+          echo "${{ toJSON(runner) }}" | jq .
           echo "Following is toJSON(github):"
-          cat << EOF
-          ${{ toJSON(github) }}
-          EOF | jq 'del(.token)'
+          echo "${{ toJSON(github) }}" | jq 'del(.token)'
           
       - name: Checkout code repository
         uses: actions/checkout@v2
