@@ -26,6 +26,13 @@ jobs:
       - name: Checkout code repository
         uses: actions/checkout@v2
         
+      - name: Update Docker Hub description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: $WF_DOCKERHUB_USER
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: $WF_DOCKERHUB_REPO
+        
       - name: Login docker hub
         run: |
           docker login -u $WF_DOCKERHUB_USER -p ${{ secrets.DOCKERHUB_TOKEN }}
