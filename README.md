@@ -1,5 +1,6 @@
-# aio
 
+[![Continuous Integration](https://github.com/vbem/aio/actions/workflows/ci.yml/badge.svg)](https://github.com/vbem/aio/actions/workflows/ci.yml)
+# aio
 A generic DevOps all-in-one image pre-installed with many tools.
 
 ## What
