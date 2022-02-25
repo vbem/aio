@@ -15,7 +15,8 @@ An All-In-One docker image for command-line debugging or basic CI/CD tasks:
 
 ## Where
 
-- Docker repository: [`vbem/aio:${tag}`](https://hub.docker.com/r/vbem/aio).
+- Code repository: https://github.com/vbem/aio
+- Docker repository: https://hub.docker.com/r/vbem/aio
 
 ## How
 
