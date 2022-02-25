@@ -1,0 +1,63 @@
+name: Continuous Integration
+
+on:
+  push:
+
+env:
+  WF_DOCKERHUB_USER: vbem
+  WF_DOCKERHUB_REPO: vbem/aio
+
+jobs:
+  build:
+    runs-on: [Linux, X64]
+    steps:
+    
+      - name: Show GitHub context information
+        run: |
+          echo "Following is toJSON(runner):"
+          cat << EOF
+          ${{ toJSON(runner) }}
+          EOF
+          echo "Following is toJSON(github):"
+          cat << EOF
+          ${{ toJSON(github) }}
+          EOF
+          
+      - name: Checkout code repository
+        uses: actions/checkout@v2
+        
+      - name: Login docker hub
+        run: |
+          docker login -u $WF_DOCKERHUB_USER -p ${{ secrets.DOCKERHUB_TOKEN }}
+        
+      - name: Install mikefarah/yq
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+          sudo add-apt-repository ppa:rmescandon/yq
+          sudo apt update
+          sudo apt install yq -y
+          yq -V
+          
+      - name: Generate image tag
+        run: |
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] \
+          && STEP_IMG_TAG=$(basename ${{ github.ref }}) \
+          || STEP_IMG_TAG=$(TZ=CST+8 date +'%y.%m.%d')-$(echo ${{ github.sha }}|cut -c-7)
+          echo STEP_IMG_TAG=$STEP_IMG_TAG | tee -a $GITHUB_ENV
+          
+      - name: Build docker image locally
+        run: |
+          docker build \
+            --build-arg IMG_VER=$STEP_IMG_TAG \
+            --build-arg IMG_REV=${{ github.sha }} \
+            --build-arg IMG_CREATED="$(TZ=CST+8 date --rfc-3339=seconds)" \
+            -t $WF_DOCKERHUB_REPO:$STEP_IMG_TAG \
+            -t $WF_DOCKERHUB_REPO \
+            .
+          docker images
+          docker image inspect $WF_DOCKERHUB_REPO:$STEP_IMG_TAG | jq .[0].ContainerConfig.Labels
+          
+      - name: Push docker image to artifactory
+        run: |
+          docker push $WF_DOCKERHUB_REPO:$STEP_IMG_TAG
+          docker push $WF_DOCKERHUB_REPO
