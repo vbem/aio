@@ -30,7 +30,7 @@ jobs:
         uses: peter-evans/dockerhub-description@v2
         with:
           username: $WF_DOCKERHUB_USER
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: $WF_DOCKERHUB_REPO
         
       - name: Login docker hub
