@@ -4,8 +4,8 @@ on:
   push:
 
 env:
-  WF_DOCKERHUB_USER: vbem
-  WF_DOCKERHUB_REPO: vbem/aio
+  WF_DOCKERHUB_USER: ${{ github.repository_owner }}
+  WF_DOCKERHUB_REPO: ${{ github.repository }}
 
 jobs:
   build:
