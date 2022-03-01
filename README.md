@@ -1,5 +1,11 @@
+<p align="center">
+  💢
+  <a href="https://github.com/vbem/aio/actions/workflows/ci.yml"><img src="https://github.com/vbem/aio/actions/workflows/ci.yml/badge.svg"></a>
+  💢
+  <br>
+  <img src="https://creatorimpact.com/wp-content/uploads/2018/04/icon-256x256-1.png">
+</p>
 
-[![Continuous Integration](https://github.com/vbem/aio/actions/workflows/ci.yml/badge.svg)](https://github.com/vbem/aio/actions/workflows/ci.yml)
 # aio
 A generic DevOps all-in-one image pre-installed with many tools.
 
