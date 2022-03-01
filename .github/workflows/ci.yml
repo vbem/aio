@@ -55,7 +55,7 @@ jobs:
         docker images
         docker image inspect $WF_CR_HOST/$WF_CR_REPO:$STEP_IMG_TAG | jq .[0].ContainerConfig.Labels
         
-    - name: Push docker image to artifactory
+    - name: Push docker image to container registry
       run: |
         docker push $WF_CR_HOST/$WF_CR_REPO:$STEP_IMG_TAG
         docker push $WF_CR_HOST/$WF_CR_REPO
