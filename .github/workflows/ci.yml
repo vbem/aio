@@ -6,8 +6,9 @@ on:
     - 'Dockerfile'
 
 env:
-  WF_DOCKERHUB_USER: ${{ github.repository_owner }}
-  WF_DOCKERHUB_REPO: ${{ github.repository }}
+  WF_DOCKERHUB_USER:  ${{ github.repository_owner }}
+  WF_DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  WF_DOCKERHUB_REPO:  ${{ github.repository }}
 
 jobs:
   build:
@@ -30,7 +31,7 @@ jobs:
       
     - name: Login docker hub
       run: |
-        docker login -u $WF_DOCKERHUB_USER -p ${{ secrets.DOCKERHUB_TOKEN }}
+        docker login -u $WF_DOCKERHUB_USER -p $WF_DOCKERHUB_TOKEN
         
     - name: Generate image tag
       run: |
