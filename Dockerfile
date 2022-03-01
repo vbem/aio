@@ -41,8 +41,6 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 # https://wiki.alpinelinux.org/wiki/Alpine_setup_scripts#setup-timezone
 && log "setting timezone as 'Asia/Shanghai'" \
 && setup-timezone -z Asia/Shanghai \
-# && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-# && echo "Asia/Shanghai" > /etc/timezone
 \
 # https://developer.aliyun.com/mirror/NPM
 # https://npm.taobao.org/mirrors
