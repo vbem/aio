@@ -2,6 +2,8 @@ name: Continuous Integration
 
 on:
   push:
+    paths:
+    - 'Dockerfile'
 
 env:
   WF_DOCKERHUB_USER: ${{ github.repository_owner }}
