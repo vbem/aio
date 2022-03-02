@@ -3,7 +3,7 @@
   <a href="https://github.com/vbem/aio/actions/workflows/ci.yml"><img src="https://github.com/vbem/aio/actions/workflows/ci.yml/badge.svg"></a>
   💢
   <br>
-  <img src="https://creatorimpact.com/wp-content/uploads/2018/04/icon-256x256-1.png">
+  <img src="https://raw.githubusercontent.com/vbem/aio/main/logo.png">
 </p>
 
 # aio
