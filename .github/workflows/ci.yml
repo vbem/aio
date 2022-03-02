@@ -1,10 +1,10 @@
 name: Continuous Integration
 
 on:
+  workflow_dispatch:
   push:
     paths:
     - 'Dockerfile'
-    - '.github/workflows/ci.yml'
 
 env:
   WF_CR_HOST:             docker.io
@@ -18,15 +18,13 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
     
-    - name: Show GitHub context information
+    - name: Gather GitHub context information
       run: |
-        echo "Following is toJSON(runner):"
-        cat | jq . <<EOF
-        ${{ toJSON(runner) }}
-        EOF
-        echo "Following is toJSON(github):"
-        cat | jq 'del(.token)' <<EOF
+        cat | jq 'del(.token)' > context.github.json <<EOF
         ${{ toJSON(github) }}
+        EOF
+        cat > context.runner.json <<EOF
+        ${{ toJSON(runner) }}
         EOF
       
     - name: Checkout code repository
