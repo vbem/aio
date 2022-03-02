@@ -1,7 +1,5 @@
 <p align="center">
-  💢
   <a href="https://github.com/vbem/aio/actions/workflows/ci.yml"><img src="https://github.com/vbem/aio/actions/workflows/ci.yml/badge.svg"></a>
-  💢
   <br>
   <img src="https://raw.githubusercontent.com/vbem/aio/main/logo.png">
 </p>
