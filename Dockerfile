@@ -34,7 +34,7 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 # https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
 # https://wiki.alpinelinux.org/wiki/Comparison_with_other_distros#Comparison_chart.2FRosetta_Stone
 # https://pkgs.alpinelinux.org
-&& apps="tzdata alpine-conf bash curl iputils docker-cli git openjdk8 maven jq yq rclone npm py3-pip libc6-compat kubectl@edgetesting helm@edgetesting" \
+&& apps="tzdata alpine-conf bash curl iputils docker-cli git openjdk17 maven jq yq rclone npm py3-pip libc6-compat kubectl@edgetesting helm@edgetesting" \
 && log "installing $apps" \
 && apk add --no-cache $apps \
 \
