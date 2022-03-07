@@ -1,6 +1,6 @@
 # https://alpinelinux.org/
 # https://hub.docker.com/_/alpine
-FROM alpine:3.14.3
+FROM alpine:3.15
 
 # https://docs.docker.com/engine/reference/builder/#arg
 ARG IMG_VER IMG_REV IMG_CREATED
