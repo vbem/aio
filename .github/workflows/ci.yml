@@ -55,5 +55,5 @@ jobs:
         
     - name: Test image
       run: |
-        docker run --rm -it ${{ env.JOB_URI }} yq -V
+        docker run --rm ${{ env.JOB_URI }} yq -V
         
