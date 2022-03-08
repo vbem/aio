@@ -16,7 +16,7 @@ env:
 
 jobs:
   build:
-    uses: ${{ github.repository_owner }}/reusable-workflows/.github/workflows/image-builder.yml@main
+    uses: vbem/reusable-workflows/.github/workflows/image-builder.yml@main
     with:
       ctx:    ${{ env.WF_BUILD_CTX }}
       host:   ${{ env.WF_CR_HOST }}
