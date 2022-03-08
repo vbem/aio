@@ -16,7 +16,7 @@ jobs:
       user:   ${{ github.repository_owner }}
       repo:   ${{ github.repository }} 
       tag:    ''
-      latest: true
+      latest: false
     secrets:
       token:  ${{ secrets.DOCKERHUB_TOKEN }}
   
