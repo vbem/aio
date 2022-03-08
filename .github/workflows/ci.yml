@@ -5,55 +5,10 @@ on:
   push:
     paths:
     - 'Dockerfile'
-
-env:
-  WF_CR_HOST:     docker.io
-  WF_CR_USER:     ${{ github.repository_owner }}
-  WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
-  WF_CR_REPO:     ${{ github.repository }}
-  WF_BUILD_PATH:  .
+    - '.dockerignore'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    
-    - name: Gather GitHub context information
-      run: |
-        cat | jq 'del(.token)' > context.github.json <<EOF
-        ${{ toJSON(github) }}
-        EOF
-        cat > context.runner.json <<EOF
-        ${{ toJSON(runner) }}
-        EOF
-      
-    - name: Checkout code repository
-      uses: actions/checkout@v2
-      
-    - name: Login container registry
-      run: |
-        docker login $WF_CR_HOST -u $WF_CR_USER -p $WF_CR_TOKEN
-        
-    - name: Generate image tag
-      run: |
-        [[ "${{ github.ref }}" == "refs/tags/"* ]] \
-        && STEP_IMG_TAG=$(basename ${{ github.ref }}) \
-        || STEP_IMG_TAG=$(TZ=CST+8 date +'%y.%m.%d')-$(echo ${{ github.sha }}|cut -c-7)
-        echo STEP_IMG_TAG=$STEP_IMG_TAG | tee -a $GITHUB_ENV
-        
-    - name: Build docker image locally
-      run: |
-        docker build \
-          --build-arg IMG_VER=$STEP_IMG_TAG \
-          --build-arg IMG_REV=${{ github.sha }} \
-          --build-arg IMG_CREATED="$(TZ=CST+8 date --rfc-3339=seconds)" \
-          -t $WF_CR_HOST/$WF_CR_REPO:$STEP_IMG_TAG \
-          -t $WF_CR_HOST/$WF_CR_REPO \
-          $WF_BUILD_PATH
-        docker images
-        docker image inspect $WF_CR_HOST/$WF_CR_REPO:$STEP_IMG_TAG | jq .[0].ContainerConfig.Labels
-        
-    - name: Push docker image to container registry
-      run: |
-        docker push $WF_CR_HOST/$WF_CR_REPO:$STEP_IMG_TAG
-        docker push $WF_CR_HOST/$WF_CR_REPO
+  call-workflow-build-and-push:
+    uses: vbem/reusable-workflows/.github/workflows/build-and-push.yml@main
+    secrets:
+      cr_token: ${{ secrets.DOCKERHUB_TOKEN }}
