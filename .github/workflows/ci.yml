@@ -16,7 +16,7 @@ jobs:
       user:   ${{ github.repository_owner }}
       repo:   ${{ github.repository }} 
       tag:    ''
-      latest: false
+      latest: true
       test:   cat /etc/os-release
     secrets:
       token:  ${{ secrets.DOCKERHUB_TOKEN }}
