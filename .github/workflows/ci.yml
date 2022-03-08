@@ -17,6 +17,7 @@ jobs:
       repo:   ${{ github.repository }} 
       tag:    ''
       latest: false
+      test:   jq -V
     secrets:
       token:  ${{ secrets.DOCKERHUB_TOKEN }}
   
