@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    uses: vbem/reusable-workflows/.github/workflows/image-builder.yml@main
+    uses: vbem/reusable-workflows/.github/workflows/image-ci.yml@main
     with:
       ctx:    .
       host:   docker.io
