@@ -11,14 +11,14 @@ env:
   WF_BUILD_CTX:  .
   WF_CR_HOST:    docker.io
   WF_CR_USER:    ${{ github.repository_owner }}
-  WF_CR_TOKEN:   ${{ secrets.DOCKERHUB_TOKEN }}
+  WF_CR_TOKEN:   &WF_CR_TOKEN ${{ secrets.DOCKERHUB_TOKEN }}
   WF_CR_REPO:    ${{ github.repository }} 
 
 jobs:
   build:
     uses: vbem/reusable-workflows/.github/workflows/image-builder.yml@main
     secrets:
-      token:  ${{ secrets.DOCKERHUB_TOKEN }}
+      token:  *WF_CR_TOKEN
   
   test:
     runs-on: ubuntu-latest
