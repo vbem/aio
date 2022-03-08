@@ -18,7 +18,7 @@ jobs:
   build:
     uses: vbem/reusable-workflows/.github/workflows/image-builder.yml@main
     secrets:
-      token:  *WF_CR_TOKEN
+      token:  ${{ secrets.DOCKERHUB_TOKEN }}
   
   test:
     runs-on: ubuntu-latest
