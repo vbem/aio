@@ -6,25 +6,25 @@ on:
     paths:
     - 'Dockerfile'
     - '.dockerignore'
-    
-env:
-  WF_BUILD_CTX:  .
-  WF_CR_HOST:    docker.io
-  WF_CR_USER:    ${{ github.repository_owner }}
-  WF_CR_TOKEN:   &token ${{ secrets.DOCKERHUB_TOKEN }}
-  WF_CR_REPO:    ${{ github.repository }} 
 
 jobs:
   build:
     uses: vbem/reusable-workflows/.github/workflows/image-builder.yml@main
+    with:
+      ctx:    .
+      host:   docker.io
+      user:   ${{ github.repository_owner }}
+      repo:   ${{ github.repository }} 
+      tag:    ''
+      latest: true
     secrets:
-      token:  *token
+      token:  ${{ secrets.DOCKERHUB_TOKEN }}
   
   test:
     runs-on: ubuntu-latest
     needs: build
     env:
-      JOB_IMG_URI: ${{ needs.call-workflow-build-and-push.outputs.uri }}
+      JOB_URI:  ${{ needs.build.outputs.uri }}
       
     steps:
     
@@ -40,18 +40,15 @@ jobs:
         ${{ toJSON(runner) }}
         EOF
       
-    - name: Checkout code repository
-      uses: actions/checkout@v2
-      
     - name: Login container registry
       run: |
-        docker login ${{ env.WF_CR_HOST }} -u ${{ env.WF_CR_USER }} -p ${{ env.WF_CR_TOKEN }}
+        docker login  ${{ needs.build.outputs.host }} -u  ${{ needs.build.outputs.user }} -p  ${{ needs.build.outputs.token }}
         
     - name: Pull image
       run: |
-        docker pull $JOB_IMG_URI
+        docker pull  ${{ needs.build.outputs.uri }}
         
     - name: Test image
       run: |
-        docker run --rm -it $JOB_IMG_URI yq -V
+        docker run --rm -it ${{ needs.build.outputs.uri }} yq -V
         
