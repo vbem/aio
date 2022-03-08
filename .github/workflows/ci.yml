@@ -9,6 +9,9 @@ on:
 
 jobs:
   call-workflow-build-and-push:
+    id: build-and-push
     uses: vbem/reusable-workflows/.github/workflows/build-and-push.yml@main
     secrets:
-      cr_token: ${{ secrets.DOCKERHUB_TOKEN }}
+      token: ${{ secrets.DOCKERHUB_TOKEN }}
+  
+  
