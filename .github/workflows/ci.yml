@@ -8,24 +8,24 @@ on:
     - '.dockerignore'
     
 env:
-  WF_BUILD_CTX:   .
-  WF_CR_HOST:     docker.io
-  WF_CR_USER:     ${{ github.repository_owner }}
-  WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
-  WF_CR_REPO:     ${{ github.repository }}
+  WF_BUILD_CTX:   &WF_BUILD_CTX .
+  WF_CR_HOST:     &WF_CR_HOST docker.io
+  WF_CR_USER:     &WF_CR_USER ${{ github.repository_owner }}
+  WF_CR_TOKEN:    &WF_CR_TOKEN ${{ secrets.DOCKERHUB_TOKEN }}
+  WF_CR_REPO:     &WF_CR_REPO ${{ github.repository }} 
 
 jobs:
   build:
     uses: vbem/reusable-workflows/.github/workflows/image-builder.yml@main
     with:
-      ctx:    ${{ env.WF_BUILD_CTX }}
-      host:   ${{ env.WF_CR_HOST }}
-      user:   ${{ env.WF_CR_USER }}
-      repo:   ${{ env.WF_CR_REPO }}
+      ctx:    *WF_BUILD_CTX
+      host:   *WF_CR_HOST
+      user:   *WF_CR_USER
+      repo:   *WF_CR_REPO
       tag:    ''
       latest: true
     secrets:
-      token:  ${{ env.WF_CR_TOKEN }}
+      token:  *WF_CR_TOKEN
   
   test:
     runs-on: ubuntu-latest
