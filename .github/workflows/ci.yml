@@ -8,11 +8,11 @@ on:
     - '.dockerignore'
     
 env:
-  WF_BUILD_CTX:   &WF_BUILD_CTX .
-  WF_CR_HOST:     &WF_CR_HOST docker.io
-  WF_CR_USER:     &WF_CR_USER ${{ github.repository_owner }}
-  WF_CR_TOKEN:    &WF_CR_TOKEN ${{ secrets.DOCKERHUB_TOKEN }}
-  WF_CR_REPO:     &WF_CR_REPO ${{ github.repository }} 
+  WF_BUILD_CTX:   &WF_BUILD_CTX   .
+  WF_CR_HOST:     &WF_CR_HOST     docker.io
+  WF_CR_USER:     &WF_CR_USER     ${{ github.repository_owner }}
+  WF_CR_TOKEN:    &WF_CR_TOKEN    ${{ secrets.DOCKERHUB_TOKEN }}
+  WF_CR_REPO:     &WF_CR_REPO     ${{ github.repository }} 
 
 jobs:
   build:
@@ -32,7 +32,7 @@ jobs:
     needs: build
     env:
       JOB_IMG_URI: ${{ needs.call-workflow-build-and-push.outputs.uri }}
-    
+      
     steps:
     
     - name: Gather GitHub context information
