@@ -75,7 +75,7 @@ jobs:
       with:
         pull: true
         tags: ${{ steps.gen.outputs.uri }}
-        label: | # https://github.com/opencontainers/image-spec/blob/master/annotations.md
+        labels: | # https://github.com/opencontainers/image-spec/blob/master/annotations.md
           org.opencontainers.image.base.name="library/alpine"
           org.opencontainers.image.title="${{ github.event.repository.name }}"
           org.opencontainers.image.description="${{ github.event.repository.description }}"
