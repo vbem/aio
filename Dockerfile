@@ -2,22 +2,6 @@
 # https://hub.docker.com/_/alpine
 FROM alpine:3.15
 
-# https://docs.docker.com/engine/reference/builder/#arg
-ARG IMG_VER IMG_REV IMG_CREATED
-
-# https://github.com/opencontainers/image-spec/blob/master/annotations.md
-LABEL \
-org.opencontainers.image.title="aio" \
-org.opencontainers.image.description="All-In-One for DevOps and debugging." \
-org.opencontainers.image.authors="i@lilei.tech" \
-org.opencontainers.image.vendor="lilei.tech" \
-org.opencontainers.image.source="https://github.com/vbem/aio" \
-org.opencontainers.image.url="https://hub.docker.com/r/vbem/aio" \
-org.opencontainers.image.base.name="library/alpine" \
-org.opencontainers.image.version="$IMG_VER" \
-org.opencontainers.image.revision="$IMG_REV" \
-org.opencontainers.image.created="$IMG_CREATED"
-
 RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
 \
 # https://wiki.alpinelinux.org/wiki/Alpine_setup_scripts#setup-apkrepos
