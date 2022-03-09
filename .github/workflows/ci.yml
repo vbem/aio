@@ -4,16 +4,19 @@ on:
 
   workflow_dispatch:
     inputs:
-      img_tag:  
+      tag:  
         description: 'Image tag'
         type: string
         required: false
         default: ''
-      img_latest:
-        description: 'Whether to push latest tag'
+      push:
+        description: 'Whether push to remote'
         type: boolean
         required: false
-        default: 'false'
+      latest:
+        description: 'Whether also push latest'
+        type: boolean
+        required: false
     
   push:
     paths:
@@ -96,20 +99,5 @@ jobs:
     - name: Test local image -> ${{ steps.gen.outputs.uri }}
       run: |
         docker run --rm ${{ steps.gen.outputs.uri }} jq -V
-        docker run --rm ${{ steps.gen.outputs.uri }} python -V
+        docker run --rm ${{ steps.gen.outputs.uri }} python3 -V
         docker run --rm ${{ steps.gen.outputs.uri }} yq -V
-
-#  build:
-#    uses: vbem/reusable-workflows/.github/workflows/image-ci.yml@main
-#    with:
-#      ctx:    .
-#      host:   docker.io
-#      user:   ${{ github.repository_owner }}
-#      repo:   ${{ github.repository }} 
-#      tag:    ''
-#      latest: true
-#      test:   cat /etc/os-release
-#    secrets:
-#      token:  ${{ secrets.DOCKERHUB_TOKEN }}
-  
-        
