@@ -91,9 +91,7 @@ jobs:
           org.opencontainers.image.revision=${{ github.sha }}
           org.opencontainers.image.created=${{ steps.gen.outputs.created }}
         
-    - name: Inspect local image -> ${{ steps.gen.outputs.uri }}
-      run: |
-        docker image inspect ${{ steps.gen.outputs.uri }} | jq .[0].ContainerConfig.Labels
+    - run: docker image inspect ${{ steps.gen.outputs.uri }} | jq .[0].ContainerConfig.Labels
 
 
 
