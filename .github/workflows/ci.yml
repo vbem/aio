@@ -71,6 +71,8 @@ jobs:
         echo "URI of image will be: $uri"
         echo "::set-output name=uri::$uri"
         
+        echo $(date --rfc-3339=seconds)
+        
     - uses: docker/build-push-action@v2
       with:
         pull: true
