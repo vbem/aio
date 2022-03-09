@@ -1,7 +1,20 @@
 name: Continuous Integration
 
 on:
+
   workflow_dispatch:
+    inputs:
+      img_tag:  
+        description: 'Image tag'
+        type: string
+        required: true
+        default: ''
+      img_latest:
+        description: 'Boolean if latest tag will be also pushed'
+        type: boolean
+        required: false
+        default: 'false'
+    
   push:
     paths:
     - 'Dockerfile'
@@ -28,6 +41,8 @@ jobs:
         registry: ${{ env.WF_CR_HOST }}
         username: ${{ env.WF_CR_USER }}
         password: ${{ env.WF_CR_TOKEN }}
+    
+    
 #  build:
 #    uses: vbem/reusable-workflows/.github/workflows/image-ci.yml@main
 #    with:
