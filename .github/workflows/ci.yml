@@ -54,7 +54,7 @@ jobs:
     #    username: ${{ env.WF_CR_USER }}
     #    password: ${{ env.WF_CR_TOKEN }}
     
-    - name: Generate image tag and URI
+    - name: Generate image variables
       id: gen
       run: |
         if [[ -n "${{ github.event.inputs.tag }}" ]]; then
@@ -71,7 +71,9 @@ jobs:
         echo "URI of image will be: $uri"
         echo "::set-output name=uri::$uri"
         
-        echo $(date --rfc-3339=seconds)
+        created="$(date --rfc-3339=seconds)"
+        echo "Created of image will be: $created"
+        echo "::set-output name=created::$created"
         
     - uses: docker/build-push-action@v2
       with:
@@ -87,7 +89,7 @@ jobs:
           org.opencontainers.image.url=${{ steps.gen.outputs.uri }}
           org.opencontainers.image.version=${{ steps.gen.outputs.tag }}
           org.opencontainers.image.revision=${{ github.sha }}
-          org.opencontainers.image.created=${{ github.event.repository.pushed_at }}
+          org.opencontainers.image.created=${{ steps.gen.outputs.created }}
         
     - run: |
         docker image inspect ${{ steps.gen.outputs.uri }}
