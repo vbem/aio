@@ -71,18 +71,21 @@ jobs:
         echo "URI of image will be: $uri"
         echo "::set-output name=uri::$uri"
         
-        created="$(TZ=CST+8 date --rfc-3339=seconds)"
-        echo "Created of image will be: $created"
-        echo "::set-output name=created::$created"
-        
     - uses: docker/build-push-action@v2
       with:
-        pukk: true
+        pull: true
         tags: ${{ steps.gen.outputs.uri }}
-        build-args: |
-          IMG_CREATED=${{ steps.gen.outputs.created }}
-          IMG_VER=${{ steps.gen.outputs.tag }}
-          IMG_REV=${{ github.sha }}
+        label: | # https://github.com/opencontainers/image-spec/blob/master/annotations.md
+          org.opencontainers.image.base.name="library/alpine"
+          org.opencontainers.image.title="${{ github.event.repository.name }}"
+          org.opencontainers.image.description="${{ github.event.repository.description }}"
+          org.opencontainers.image.authors="${{ github.actor }}"
+          org.opencontainers.image.vendor="${{ github.repository_owner }}"
+          org.opencontainers.image.source="${{ github.event.repository.html_url }}"
+          org.opencontainers.image.url="${{ steps.gen.outputs.uri }}"
+          org.opencontainers.image.version="${{ steps.gen.outputs.tag }}"
+          org.opencontainers.image.revision="${{ github.sha }}"
+          org.opencontainers.image.created="${{ github.event.repository.pushed_at }}"
         
     - run: |
         docker image inspect ${{ steps.gen.outputs.uri }}
