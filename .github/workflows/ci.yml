@@ -76,16 +76,16 @@ jobs:
         pull: true
         tags: ${{ steps.gen.outputs.uri }}
         labels: | # https://github.com/opencontainers/image-spec/blob/master/annotations.md
-          org.opencontainers.image.base.name="library/alpine"
-          org.opencontainers.image.title="${{ github.event.repository.name }}"
-          org.opencontainers.image.description="${{ github.event.repository.description }}"
-          org.opencontainers.image.authors="${{ github.actor }}"
-          org.opencontainers.image.vendor="${{ github.repository_owner }}"
-          org.opencontainers.image.source="${{ github.event.repository.html_url }}"
-          org.opencontainers.image.url="${{ steps.gen.outputs.uri }}"
-          org.opencontainers.image.version="${{ steps.gen.outputs.tag }}"
-          org.opencontainers.image.revision="${{ github.sha }}"
-          org.opencontainers.image.created="${{ github.event.repository.pushed_at }}"
+          org.opencontainers.image.base.name=library/alpine
+          org.opencontainers.image.title=${{ github.event.repository.name }}
+          org.opencontainers.image.description=${{ github.event.repository.description }}
+          org.opencontainers.image.authors=${{ github.actor }}
+          org.opencontainers.image.vendor=${{ github.repository_owner }}
+          org.opencontainers.image.source=${{ github.event.repository.html_url }}
+          org.opencontainers.image.url=${{ steps.gen.outputs.uri }}
+          org.opencontainers.image.version=${{ steps.gen.outputs.tag }}
+          org.opencontainers.image.revision=${{ github.sha }}
+          org.opencontainers.image.created=${{ github.event.repository.pushed_at }}
         
     - run: |
         docker image inspect ${{ steps.gen.outputs.uri }}
