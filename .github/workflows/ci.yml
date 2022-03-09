@@ -6,19 +6,39 @@ on:
     paths:
     - 'Dockerfile'
     - '.dockerignore'
+    - 'src/**'
+    
+env:
+  WF_BUILD_CTX:   .
+  WF_CR_HOST:     docker.io
+  WF_CR_USER:     ${{ github.repository_owner }}
+  WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
+  WF_IMG_REPO:    ${{ github.repository }}
 
 jobs:
-  build:
-    uses: vbem/reusable-workflows/.github/workflows/image-ci.yml@main
-    with:
-      ctx:    .
-      host:   docker.io
-      user:   ${{ github.repository_owner }}
-      repo:   ${{ github.repository }} 
-      tag:    ''
-      latest: true
-      test:   cat /etc/os-release
-    secrets:
-      token:  ${{ secrets.DOCKERHUB_TOKEN }}
+  CI:
+    runs-on: ubuntu-latest
+    
+    steps:
+      
+    - uses: actions/checkout@v2
+    
+    - uses: docker/login-action@v1
+      with:
+        registry: ${{ env.WF_CR_HOST }}
+        username: ${{ env.WF_CR_USER }}
+        password: ${{ env.WF_CR_TOKEN }}
+#  build:
+#    uses: vbem/reusable-workflows/.github/workflows/image-ci.yml@main
+#    with:
+#      ctx:    .
+#      host:   docker.io
+#      user:   ${{ github.repository_owner }}
+#      repo:   ${{ github.repository }} 
+#      tag:    ''
+#      latest: true
+#      test:   cat /etc/os-release
+#    secrets:
+#      token:  ${{ secrets.DOCKERHUB_TOKEN }}
   
         
