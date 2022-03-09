@@ -34,6 +34,12 @@ jobs:
     
     steps:
    
+    - name: Gather context -> github
+      run: |        
+        cat | jq 'del(.token)' > context.github.json <<__EOF__
+        ${{ toJSON(github) }}
+        __EOF__
+        
     - name: Gather context -> runner
       run: |
         cat > context.runner.json <<__EOF__
@@ -46,12 +52,12 @@ jobs:
         ${{ toJSON(job) }}
         __EOF__
         
-    - name: Gather context -> github
+    - name: Gather context -> steps
       run: |        
-        cat | jq 'del(.token)' > context.github.json <<__EOF__
-        ${{ toJSON(github) }}
+        cat > context.steps.json <<__EOF__
+        ${{ toJSON(steps) }}
         __EOF__
-   
+    
     - uses: actions/checkout@v2
     
     - uses: docker/login-action@v1
