@@ -7,7 +7,7 @@ on:
       img_tag:  
         description: 'Image tag'
         type: string
-        required: true
+        required: false
         default: ''
       img_latest:
         description: 'Boolean if latest tag will be also pushed'
