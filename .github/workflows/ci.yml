@@ -91,9 +91,13 @@ jobs:
           org.opencontainers.image.revision=${{ github.sha }}
           org.opencontainers.image.created=${{ steps.gen.outputs.created }}
         
-    - run: docker image inspect ${{ steps.gen.outputs.uri }} | jq .[0].ContainerConfig.Labels
+    - run: docker image inspect ${{ steps.gen.outputs.uri }}
 
-
+    - name: Test local image -> ${{ steps.gen.outputs.uri }}
+      run: |
+        docker run --rm ${{ steps.gen.outputs.uri }} jq -V
+        docker run --rm ${{ steps.gen.outputs.uri }} python -V
+        docker run --rm ${{ steps.gen.outputs.uri }} yq -V
 
 #  build:
 #    uses: vbem/reusable-workflows/.github/workflows/image-ci.yml@main
