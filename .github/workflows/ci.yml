@@ -33,7 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-   
+    #- uses: actions/checkout@v3
+    
     - name: Gather context -> github
       run: |        
         cat | jq 'del(.token)' > context.github.json <<__EOF__
@@ -58,52 +59,16 @@ jobs:
           type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag }}
           # on other events
           type=raw,value=sha-{{sha}}@time-{{date ''}},enable=${{ tag != github.ref_type && !github.event.inputs.img-tag }}
+        labels: |
+          # https://github.com/opencontainers/image-spec/blob/master/annotations.md
+          org.opencontainers.image.vendor=${{ github.repository_owner }}
           
-        
-    # - uses: actions/checkout@v3
-    
-    #- uses: docker/login-action@v1
-    #  with:
-    #    registry: ${{ env.WF_CR_HOST }}
-    #    username: ${{ env.WF_CR_USER }}
-    #    password: ${{ env.WF_CR_TOKEN }}
-    
-    - name: Generate image variables
-      id: gen
-      run: |
-        if [[ -n "${{ github.event.inputs.tag }}" ]]; then
-          tag='${{ github.event.inputs.tag }}'
-        elif [[ "${{ github.ref_type }}" == "tag" ]]; then
-          tag="${{ github.ref_name }}"
-        else
-          tag=$(TZ=CST+8 date +'%y.%m.%d')-$(echo ${{ github.sha }}|cut -c-7)
-        fi
-        echo "Tag of image will be: $tag"
-        echo "::set-output name=tag::$tag"
-        
-        uri=${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}:$tag
-        echo "URI of image will be: $uri"
-        echo "::set-output name=uri::$uri"
-        
-        created="$(date --rfc-3339=seconds)"
-        echo "Created of image will be: $created"
-        echo "::set-output name=created::$created"
-        
     - uses: docker/build-push-action@v2
       with:
         pull: true
-        tags: ${{ steps.gen.outputs.uri }}
-        labels: | # https://github.com/opencontainers/image-spec/blob/master/annotations.md
-          org.opencontainers.image.base.name=library/alpine
-          org.opencontainers.image.title=${{ github.event.repository.name }}
-          org.opencontainers.image.description=${{ github.event.repository.description }}
-          org.opencontainers.image.authors=${{ github.actor }}
-          org.opencontainers.image.vendor=${{ github.repository_owner }}
-          org.opencontainers.image.source=${{ github.event.repository.html_url }}
-          org.opencontainers.image.url=${{ steps.gen.outputs.uri }}
-          org.opencontainers.image.version=${{ steps.gen.outputs.tag }}
-          org.opencontainers.image.revision=${{ github.sha }}
-          org.opencontainers.image.created=${{ steps.gen.outputs.created }}
+        push: false
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
         
     - run: docker image inspect ${{ steps.gen.outputs.uri }}
 
@@ -112,3 +77,9 @@ jobs:
         docker run --rm ${{ steps.gen.outputs.uri }} jq -V
         docker run --rm ${{ steps.gen.outputs.uri }} python3 -V
         docker run --rm ${{ steps.gen.outputs.uri }} yq -V
+        
+    - uses: docker/login-action@v1
+      with:
+        registry: ${{ env.WF_CR_HOST }}
+        username: ${{ env.WF_CR_USER }}
+        password: ${{ env.WF_CR_TOKEN }}
