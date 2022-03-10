@@ -9,7 +9,6 @@ env:
 
 on:
   push:
-    tags: '*'
     paths:
     - 'Dockerfile'
     - '.dockerignore'
