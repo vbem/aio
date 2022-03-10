@@ -58,7 +58,7 @@ jobs:
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ '' != github.event.inputs.img-tag }}
-          type=raw,value=sha-{{sha}}-time-{{date 'YYYYMMDDhhmmssZZ'}},enable=${{ 'tag' != github.ref_type && !github.event.inputs.img-tag }}  
+          type=raw,value=sha-{{sha}}-time-{{date 'YYYYMMDDhhmmssz'}},enable=${{ 'tag' != github.ref_type && !github.event.inputs.img-tag }}  
         # https://github.com/opencontainers/image-spec/blob/master/annotations.md
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
