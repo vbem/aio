@@ -1,11 +1,11 @@
 name: Continuous Integration
 
 env:
-  TZ:             Asia/Shanghai
   WF_CR_HOST:     docker.io
   WF_CR_USER:     ${{ github.repository_owner }}
   WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
   WF_IMG_REPO:    ${{ github.repository }}
+  TZ:             Asia/Shanghai
 
 on:
   push:
@@ -30,25 +30,22 @@ on:
 jobs:
   CI:
     runs-on: ubuntu-latest
-    
+      
     steps:
     #- uses: actions/checkout@v3
     
-    - name: Gather context -> github
-      run: |        
+    - run: |        
         cat | jq 'del(.token)' > context.github.json <<__EOF__
         ${{ toJSON(github) }}
         __EOF__
         
-    - name: Gather context -> runner
-      run: |
+    - run: |
         cat > context.runner.json <<__EOF__
         ${{ toJSON(runner) }}
         __EOF__
         
-    # https://github.com/marketplace/actions/docker-metadata-action
     - id: meta
-      uses: docker/metadata-action@v3
+      uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
       with:
         images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
         # https://semver.org/
@@ -64,25 +61,22 @@ jobs:
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
           
-    #- name: build local image -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
-    #  uses: docker/build-push-action@v2
-    #  with:
-    #    pull: true
-    #    push: false
-    #    tags: ${{ steps.meta.outputs.tags }}
-    #    labels: ${{ steps.meta.outputs.labels }}
-    #    
-    #- run: docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-#
-    #- name: Test local image -> ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-    #  run: |
-    #    docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} jq -V
-    #    docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} python3 -V
-    #    docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} yq -V
-    
-    - if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
-      uses: docker/login-action@v1
+    - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
+      if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
+      id: login
+      uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
       with:
         registry: ${{ env.WF_CR_HOST }}
         username: ${{ env.WF_CR_USER }}
         password: ${{ env.WF_CR_TOKEN }}
+        
+    - name: Build (and push=${{ steps.login.outcome == 'success' }}) image -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
+      uses: docker/build-push-action@v2
+      with:
+        pull: true
+        push: ${{ steps.login.outcome == 'success' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        
+    - run: docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+    
