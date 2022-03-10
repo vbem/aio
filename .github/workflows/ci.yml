@@ -53,11 +53,8 @@ jobs:
       with:
         images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
         tags: |
-          # on push tag event
           type=semver,pattern={{version}}
-          # on `workflow_dispatch` event and input `img-tag` is not empty
           type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ '' != github.event.inputs.img-tag }}
-          # on other events
           type=raw,value=sha-{{sha}}@time-{{date ''}},enable=${{ 'tag' != github.ref_type && !github.event.inputs.img-tag }}
         labels: |
           # https://github.com/opencontainers/image-spec/blob/master/annotations.md
