@@ -20,7 +20,7 @@ on:
         description: 'Push to remote'
         type: boolean
         required: false
-  
+
 env:
   TZ:             Asia/Shanghai
   WF_CR_HOST:     docker.io
@@ -58,7 +58,7 @@ jobs:
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
-          type=raw,value=sha-{{sha}}-time-{{date 'YYYYMMDDhhmmssz'}},enable=${{ github.ref_type != 'tag' && !github.event.inputs.img-tag }}  
+          type=raw,value=sha-{{sha}}-time-{{date 'YYYYMMDDhhmmssz'}},enable=${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}  
         # https://github.com/opencontainers/image-spec/blob/master/annotations.md
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
