@@ -12,12 +12,12 @@ on:
   workflow_dispatch:
     inputs:
       img-tag:
-        description: 'Image tag'
+        description: 'Image tag (e.g. v1.2.3-beta.45)'
         type: string
         required: false
         default: ''
       img-push:
-        description: 'Push to remote'
+        description: 'Push to remote container registry'
         type: boolean
         required: false
         default: 'false' # actually all inputs are string
@@ -64,22 +64,22 @@ jobs:
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
           
-    - name: build local image -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
-      uses: docker/build-push-action@v2
-      with:
-        pull: true
-        push: false
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        
-    - run: docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-
-    - name: Test local image -> ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-      run: |
-        docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} jq -V
-        docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} python3 -V
-        docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} yq -V
-        
+    #- name: build local image -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
+    #  uses: docker/build-push-action@v2
+    #  with:
+    #    pull: true
+    #    push: false
+    #    tags: ${{ steps.meta.outputs.tags }}
+    #    labels: ${{ steps.meta.outputs.labels }}
+    #    
+    #- run: docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+#
+    #- name: Test local image -> ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+    #  run: |
+    #    docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} jq -V
+    #    docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} python3 -V
+    #    docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} yq -V
+    
     - if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
       uses: docker/login-action@v1
       with:
