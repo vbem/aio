@@ -14,6 +14,7 @@ on:
     - 'Dockerfile'
     - '.dockerignore'
     - 'src/**'
+    - '.github/workflows/ci.yml'
   workflow_dispatch:
     inputs:
       img-tag:
