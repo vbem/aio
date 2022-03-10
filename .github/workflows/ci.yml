@@ -54,11 +54,11 @@ jobs:
         images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
         # on push tag event -> :git-tag
         # on `workflow_dispatch` event and input `img-tag` is not empty -> `github.event.inputs.img-tag`
-        # on other events -> sha-????@time-???? https://momentjs.com/docs/#/displaying/format/
+        # on other events -> sha-????-time-???? https://momentjs.com/docs/#/displaying/format/
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ '' != github.event.inputs.img-tag }}
-          type=raw,value=sha-{{sha}}@time-{{date 'YYYYMMDDhhmmssz'}},enable=${{ 'tag' != github.ref_type && !github.event.inputs.img-tag }}  
+          type=raw,value=sha-{{sha}}-time-{{date 'YYYYMMDDhhmmssZZ'}},enable=${{ 'tag' != github.ref_type && !github.event.inputs.img-tag }}  
         # https://github.com/opencontainers/image-spec/blob/master/annotations.md
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
