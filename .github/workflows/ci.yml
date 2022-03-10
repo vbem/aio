@@ -56,7 +56,7 @@ jobs:
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
-          type=raw,value=0.${{ github.run_number }}.${{ github.run_attempt }}-{{date 'YYYYMMDDHHmmssz'}}+sha.{{sha}},enable=${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}  
+          type=raw,value=0.${{ github.run_number }}.${{ github.run_attempt }}-time.{{date 'YYYYMMDDHHmmssz'}}.sha.{{sha}},enable=${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}  
         # https://github.com/opencontainers/image-spec/blob/master/annotations.md
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
@@ -70,7 +70,7 @@ jobs:
         username: ${{ env.WF_CR_USER }}
         password: ${{ env.WF_CR_TOKEN }}
         
-    - name: Build (and push=${{ steps.login.outcome == 'success' }}) image -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
+    - name: Build and push=${{ steps.login.outcome == 'success' }} image -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
       uses: docker/build-push-action@v2
       with:
         pull: true
