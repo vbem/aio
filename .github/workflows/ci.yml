@@ -1,18 +1,23 @@
 name: Continuous Integration
 
-on:
+env:
+  TZ:             Asia/Shanghai
+  WF_CR_HOST:     docker.io
+  WF_CR_USER:     ${{ github.repository_owner }}
+  WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
+  WF_IMG_REPO:    ${{ github.repository }}
 
+on:
   push:
     tags: '*'
     paths:
     - 'Dockerfile'
     - '.dockerignore'
     - 'src/**'
-    
   workflow_dispatch:
     inputs:
       img-tag:
-        description: 'Image tag (e.g. v1.2.3-beta.45)'
+        description: 'Image tag (e.g. v1.2.3-beta.45)\nDefault: 0.0.0-{datetime}+sha.{sha}'
         type: string
         required: false
         default: ''
@@ -21,13 +26,6 @@ on:
         type: boolean
         required: false
         default: 'false' # actually all inputs are string
-
-env:
-  TZ:             Asia/Shanghai
-  WF_CR_HOST:     docker.io
-  WF_CR_USER:     ${{ github.repository_owner }}
-  WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
-  WF_IMG_REPO:    ${{ github.repository }}
 
 jobs:
   CI:
@@ -53,13 +51,15 @@ jobs:
       uses: docker/metadata-action@v3
       with:
         images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
-        # on push tag event -> :git-tag
+        # https://semver.org/
+        # https://momentjs.com/docs/#/displaying/format/
+        # on push tag event -> pushed semver tag
         # on `workflow_dispatch` event and input `img-tag` is not empty -> `github.event.inputs.img-tag`
-        # on other events -> sha-????-time-???? https://momentjs.com/docs/#/displaying/format/
+        # on other events -> auto generated tag with time and SHA
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
-          type=raw,value=sha-{{sha}}-time-{{date 'YYYYMMDDhhmmssz'}},enable=${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}  
+          type=raw,value=0.0.0-{{date 'Y.M.D.H.m.s.z'}}+sha.{{sha}},enable=${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}  
         # https://github.com/opencontainers/image-spec/blob/master/annotations.md
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
