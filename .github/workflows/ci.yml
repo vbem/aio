@@ -57,8 +57,8 @@ jobs:
         # on other events -> sha-????-time-???? https://momentjs.com/docs/#/displaying/format/
         tags: |
           type=semver,pattern={{version}}
-          type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ '' != github.event.inputs.img-tag }}
-          type=raw,value=sha-{{sha}}-time-{{date 'YYYYMMDDhhmmssz'}},enable=${{ 'tag' != github.ref_type && !github.event.inputs.img-tag }}  
+          type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
+          type=raw,value=sha-{{sha}}-time-{{date 'YYYYMMDDhhmmssz'}},enable=${{ github.ref_type != 'tag' && !github.event.inputs.img-tag }}  
         # https://github.com/opencontainers/image-spec/blob/master/annotations.md
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
@@ -71,15 +71,16 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         
-    - run: docker image inspect ${{ steps.gen.outputs.uri }}
+    - run: docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
 
-    - name: Test local image -> ${{ steps.gen.outputs.uri }}
+    - name: Test local image -> ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
       run: |
-        docker run --rm ${{ steps.gen.outputs.uri }} jq -V
-        docker run --rm ${{ steps.gen.outputs.uri }} python3 -V
-        docker run --rm ${{ steps.gen.outputs.uri }} yq -V
+        docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} jq -V
+        docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} python3 -V
+        docker run --rm ${{ fromJSON(steps.meta.outputs.json).tags[0] }} yq -V
         
-    - uses: docker/login-action@v1
+    - if: github.ref_type == 'tag' || github.event.inputs.img-push
+      uses: docker/login-action@v1
       with:
         registry: ${{ env.WF_CR_HOST }}
         username: ${{ env.WF_CR_USER }}
