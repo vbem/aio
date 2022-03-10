@@ -20,6 +20,7 @@ on:
         description: 'Push to remote'
         type: boolean
         required: false
+        default: 'false'
 
 env:
   TZ:             Asia/Shanghai
