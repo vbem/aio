@@ -35,11 +35,11 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && npm config set electron_mirror https://npm.taobao.org/mirrors/electron/ -g \
 \
 # https://developer.aliyun.com/mirror/pypi
-&& log "setting python3 pip mirror" \
+&& log "setting pip mirror" \
 && echo -e '[global]\nindex-url=https://mirrors.aliyun.com/pypi/simple/\ntrusted-host=mirrors.aliyun.com' > /etc/pip.conf \
 \
 # https://github.com/aliyun/aliyun-cli/releases
-&& log "installing aliyun-cli" \
+&& log "installing latest aliyun-cli" \
 && wget https://aliyuncli.alicdn.com/aliyun-cli-linux-latest-amd64.tgz -O- | tar xz && chown root:root aliyun && chmod 755 aliyun && mv aliyun /usr/local/bin/ \
 \
 && log "cleaning all cache files" \
