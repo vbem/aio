@@ -49,6 +49,16 @@ jobs:
         ${{ toJSON(runner) }}
         __EOF__
         
+    # https://github.com/marketplace/actions/docker-metadata-action
+    - id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
+        tags: |
+          type=sha
+          type=semver,pattern={{version}}
+          
+        
     # - uses: actions/checkout@v3
     
     #- uses: docker/login-action@v1
@@ -62,8 +72,8 @@ jobs:
       run: |
         if [[ -n "${{ github.event.inputs.tag }}" ]]; then
           tag='${{ github.event.inputs.tag }}'
-        elif [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-          tag="$(basename ${{ github.ref }})"
+        elif [[ "${{ github.ref_type }}" == "tag" ]]; then
+          tag="${{ github.ref_name }}"
         else
           tag=$(TZ=CST+8 date +'%y.%m.%d')-$(echo ${{ github.sha }}|cut -c-7)
         fi
