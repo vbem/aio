@@ -17,9 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       img-tag:
-        description: |
-          Image tag (e.g. v1.2.3-beta.45)
-          Default: 0.0.0-{datetime}+sha.{sha}'
+        description: Image tag (e.g. `v1.2.3-beta.45`), blank to `0.0.0-{datetime}+sha.{sha}`
         type: string
         required: false
         default: ''
