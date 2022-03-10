@@ -56,8 +56,9 @@ jobs:
       with:
         images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
         tags: |
-          type=sha
-          type=semver,pattern={{version}}
+          type=semver,pattern={{version}},enable=${{ tag == github.ref_type }}
+          type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event.inputs.tag }}
+          type=sha,prefix=time-{{date ''}}@sha-,enable=${{ tag != github.ref_type && !github.event.inputs.tag }}
           
         
     # - uses: actions/checkout@v3
