@@ -17,8 +17,9 @@ on:
         description: 'Whether also push latest'
         type: boolean
         required: false
-    
+  
   push:
+    tags: '*'
     paths:
     - 'Dockerfile'
     - '.dockerignore'
