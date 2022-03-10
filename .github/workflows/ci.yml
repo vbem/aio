@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       img-tag:
-        description: Image tag (e.g. `v1.2.3-beta.45`), blank to `0.0.0-{datetime}+sha.{sha}`
+        description: Image tag (e.g. `v1.2.3-beta.45`), blank to an generated tag with time and SHA
         type: string
         required: false
         default: ''
@@ -55,11 +55,11 @@ jobs:
         # https://momentjs.com/docs/#/displaying/format/
         # on push tag event -> pushed semver tag
         # on `workflow_dispatch` event and input `img-tag` is not empty -> `github.event.inputs.img-tag`
-        # on other events -> auto generated tag with time and SHA
+        # on other events -> generated tag with time and SHA
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
-          type=raw,value=0.0.0-{{date 'YYYYMMDDHHmmssz'}}+sha.{{sha}},enable=${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}  
+          type=raw,value=0.${{ github.run_number }}.{{date 'YYYYMMDDHHmmss'}}+sha.{{sha}},enable=${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}  
         # https://github.com/opencontainers/image-spec/blob/master/annotations.md
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
