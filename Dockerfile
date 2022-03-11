@@ -121,7 +121,7 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && kubectl version --client \
 \
 && log "Test helm" \
-&& helm --version \
+&& helm version \
 \
 && log "Test aliyun-cli" \
 && aliyun --help \
