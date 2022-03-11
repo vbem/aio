@@ -37,8 +37,6 @@ jobs:
     steps:
     # - uses: actions/checkout@v3
     
-    - uses: crazy-max/ghaction-dump-context@v1
-    
     - run: |
         cat | jq 'del(.token)' > context.github.json <<__EOF__
         ${{ toJSON(github) }}
@@ -82,6 +80,4 @@ jobs:
         push: ${{ steps.login.outcome == 'success' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        
-    # - run: docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
     
