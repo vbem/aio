@@ -1,3 +1,4 @@
+
 [![Continuous Integration](https://github.com/vbem/aio/actions/workflows/ci.yml/badge.svg)](https://github.com/vbem/aio/actions/workflows/ci.yml)
 [![GitHub Super-Linter](https://github.com/vbem/aio/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/vbem/aio/actions/workflows/linter.yml)
 [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/vbem/aio?include_prereleases)](https://github.com/vbem/aio/releases)
