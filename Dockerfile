@@ -126,10 +126,9 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && log "Test aliyun-cli" \
 && aliyun \
 \
-&& log "Passed all test cases!" \
-&& touch tested && ls -al
+&& log "Passed all test cases!"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 FROM fresh AS output
 RUN ls -al
-COPY --from=tester tested .
+COPY --from=tester /root/* .
 RUN ls -al
