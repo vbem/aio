@@ -9,7 +9,6 @@ env:
   WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
   WF_IMG_REPO:    ${{ github.repository }}
   TZ:             Asia/Shanghai
-  DOCKER_BUILDKIT: 0
 
 on:
   push:
@@ -65,10 +64,6 @@ jobs:
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
           
-    - uses: docker/setup-buildx-action@v1
-      with:
-        driver: docker
-          
     - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
       id: login
       if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
@@ -81,7 +76,6 @@ jobs:
     - name: Build image with push=${{ steps.login.outcome == 'success' }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
       uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
       with:
-        builder: default
         push: ${{ steps.login.outcome == 'success' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
