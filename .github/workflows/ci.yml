@@ -64,6 +64,10 @@ jobs:
         labels: |
           org.opencontainers.image.vendor=${{ github.repository_owner }}
           
+    - uses: docker/setup-buildx-action@v1
+      with:
+        driver: docker
+          
     - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
       id: login
       if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
