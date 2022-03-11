@@ -1,11 +1,12 @@
-[![GitHub issues](https://img.shields.io/github/issues/vbem/aio)](https://github.com/vbem/aio/issues)
-[![GitHub top language](https://img.shields.io/github/languages/top/vbem/aio)](https://github.com/vbem/aio)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/y/vbem/aio)](https://github.com/vbem/aio/graphs/commit-activity)
-[![GitHub last commit](https://img.shields.io/github/last-commit/vbem/aio)](https://github.com/vbem/aio/graphs/commit-activity)
+[![Continuous Integration](https://github.com/vbem/aio/actions/workflows/ci.yml/badge.svg)](https://github.com/vbem/aio/actions/workflows/ci.yml)
+[![GitHub Super-Linter](https://github.com/vbem/aio/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/vbem/aio/actions/workflows/linter.yml)
 [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/vbem/aio?include_prereleases)](https://github.com/vbem/aio/releases)
 [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/vbem/aio)](https://github.com/vbem/aio/releases)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/y/vbem/aio)](https://github.com/vbem/aio/graphs/commit-activity)
+[![GitHub last commit](https://img.shields.io/github/last-commit/vbem/aio)](https://github.com/vbem/aio/graphs/commit-activity)
 [![Docker Pulls](https://img.shields.io/docker/pulls/vbem/aio)](https://hub.docker.com/r/vbem/aio)
-[![Continuous Integration](https://github.com/vbem/aio/actions/workflows/ci.yml/badge.svg)](https://github.com/vbem/aio/actions/workflows/ci.yml)
+[![GitHub top language](https://img.shields.io/github/languages/top/vbem/aio)](https://github.com/vbem/aio)
+[![GitHub issues](https://img.shields.io/github/issues/vbem/aio)](https://github.com/vbem/aio/issues)
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/vbem/aio/main/logo.png">
