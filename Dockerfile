@@ -2,7 +2,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # https://alpinelinux.org/
 # https://hub.docker.com/_/alpine
-FROM alpine:3.15
+FROM alpine:3.15 AS fresh
 
 RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
 \
@@ -57,3 +57,72 @@ LANG=C.UTF-8 \
 PS1='\[\e]0;\u@\h: \w\a\]\[\e[0m\]\[\e[1;97;41m\]$(r=$?; [ $r -ne 0 ] && echo " \\$?=$r ")\[\e[0m\]\[\e[1;97;43m\]$([ 1 -ne $SHLVL ] && echo " \\$SHLVL=$SHLVL ")\[\e[0m\]\[\e[3;37;100m\] $(source /etc/os-release && echo $ID-$VERSION_ID) \[\e[0m\]\[\e[95;40m\] \u\[\e[0m\]\[\e[1;35;40m\]$([ "$(id -ng)" != "$(id -nu)" ] && echo ":$(id -ng)")\[\e[0m\]\[\e[2;90;40m\]@\[\e[0m\]\[\e[3;32;40m\]$(hostname -i)\[\e[0m\]\[\e[2;90;40m\]@\[\e[0m\]\[\e[4;34;40m\]\H\[\e[0m\]\[\e[2;90;40m\]:\[\e[0m\]\[\e[1;33;40m\]$PWD \[\e[0m\]\n\[\e[0m\]\[\e[1;31m\]\$\[\e[0m\] '
 CMD ["/bin/bash"]
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+FROM fresh AS tester
+RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
+\
+&& log "Test APK repositories" \
+&& cat /etc/apk/repositories\
+\
+&& log "Test timezone" \
+&& readlink -vf /etc/localtime \
+\
+&& log "Test bash" \
+&& bash --version \
+\
+&& log "Test curl" \
+&& curl --version \
+\
+&& log "Test ping" \
+&& ping -V \
+\
+&& log "Test docker-cli" \
+&& docker --version \
+\
+&& log "Test git" \
+&& git --version \
+\
+&& log "Test openjdk17" \
+&& javac --version \
+\
+&& log "Test maven" \
+&& maven --version \
+\
+&& log "Test jq" \
+&& jq --version \
+\
+&& log "Test yq" \
+&& yq --version \
+\
+&& log "Test rclone" \
+&& rclone --version \
+\
+&& log "Test nodejs" \
+&& node --version \
+\
+&& log "Test npm" \
+&& npm --version \
+\
+&& log "Test npm repositories" \
+&& npm config list \
+\
+&& log "Test python3" \
+&& python3 --version \
+\
+&& log "Test pip" \
+&& pip --version \
+\
+&& log "Test pip mirrors" \
+&& pip config list \
+\
+&& log "Test kubectl" \
+&& kubectl version --client \
+\
+&& log "Test helm" \
+&& helm --version \
+\
+&& log "Test aliyun-cli" \
+&& aliyun --help \
+\
+&& log "Passed all test cases!"
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+FROM fresh AS output
