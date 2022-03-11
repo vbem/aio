@@ -37,7 +37,9 @@ jobs:
     steps:
     # - uses: actions/checkout@v3
     
-    - run: |        
+    - uses: crazy-max/ghaction-dump-context@v1
+    
+    - run: |
         cat | jq 'del(.token)' > context.github.json <<__EOF__
         ${{ toJSON(github) }}
         __EOF__
@@ -76,11 +78,10 @@ jobs:
     - name: Build image with push=${{ steps.login.outcome == 'success' }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
       uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
       with:
+        #context: .
         push: ${{ steps.login.outcome == 'success' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        
-    - run: docker history ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         
     # - run: docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
     
