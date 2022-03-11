@@ -74,7 +74,6 @@ jobs:
       if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
       uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
       with:
-        builder: default
         registry: ${{ env.WF_CR_HOST }}
         username: ${{ env.WF_CR_USER }}
         password: ${{ env.WF_CR_TOKEN }}
@@ -82,6 +81,7 @@ jobs:
     - name: Build image with push=${{ steps.login.outcome == 'success' }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
       uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
       with:
+        builder: default
         push: ${{ steps.login.outcome == 'success' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
