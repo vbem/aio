@@ -18,7 +18,7 @@ A generic DevOps all-in-one image pre-installed with many tools.
 
 An All-In-One docker image for command-line debugging or basic CI/CD tasks:
 - Alpine latest stable version based
-- `mirrors.aliyun.com` repo enabled for `apk` acceleration
+- Repo mirror in China enabled for `apk` acceleration
 - `tzdata` added and `Asia/Shanghai` as default time-zone. You can change this by setting `TZ` env var at runtime
 - Replaced `ash` to `bash` as default shell
 - `$PS1` optimized
