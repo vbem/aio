@@ -80,6 +80,7 @@ jobs:
     - name: Build image with push=${{ steps.login.outcome == 'success' }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
       uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
       with:
+        builder: docker
         push: ${{ steps.login.outcome == 'success' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
