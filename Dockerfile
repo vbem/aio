@@ -129,5 +129,6 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && log "Passed all test cases!" \
 && touch /tested
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-FROM fresh AS output
+FROM fresh AS output 
+# https://www.docker.com/blog/advanced-dockerfiles-faster-builds-and-smaller-images-using-buildkit-and-multistage-builds/
 COPY --from=tester /tested /
