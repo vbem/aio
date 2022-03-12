@@ -39,7 +39,7 @@ jobs:
     
     - name: Show flattened context
       env:
-        STEP_GITHUB:  ${{ github.runner }}
+        STEP_GITHUB:  ${{ runner }}
       run: |
         echo $STEP_GITHUB
         
