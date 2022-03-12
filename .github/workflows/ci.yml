@@ -1,7 +1,7 @@
 name: Continuous Integration
-# Push tag event -> semver will be build and push to remote, latest tag included if stable semver
-# Push branch event -> local build only
-# Manually triggered -> depends on inputs
+# on push tag event -> semver will be build and push to remote, latest tag included if a stable semver
+# on push branch event -> generated tag with time and SHA, no push
+# on `workflow_dispatch` event -> generated tag with time and SHA if no input, push depends on input
 
 env:
   WF_CR_HOST:     docker.io
@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
     inputs:
       img-tag:
-        description: Image tag (e.g. `v1.2.3-beta.45`), blank to an generated tag with time and SHA
+        description: Image tag (e.g. `v1.2.3-beta.45`), blank to generate a tag with time and SHA
         type: string
         required: false
         default: ''
@@ -35,6 +35,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    
     # https://github.com/marketplace/actions/checkout
     # - uses: actions/checkout@v3
     
@@ -62,9 +63,6 @@ jobs:
         images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
         # https://semver.org/
         # https://momentjs.com/docs/#/displaying/format/
-        # on push tag event -> pushed semver tag
-        # on `workflow_dispatch` event and input `img-tag` is not empty -> `github.event.inputs.img-tag`
-        # on other events -> generated tag with time and SHA
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
@@ -86,7 +84,7 @@ jobs:
       uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
       with:
         #context: .
-        push: ${{ steps.login.outcome == 'success' }}
+        push: ${{ steps.login.outcome == 'success' }} # https://docs.github.com/en/actions/learn-github-actions/contexts#steps-context
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
     
