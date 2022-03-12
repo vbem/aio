@@ -47,7 +47,7 @@ jobs:
         {
           "github":   ${{ toJson(github) }},
           "runner":   ${{ toJson(runner) }},
-          "env":      ${{ toJson(env) }},
+          "inputs":   ${{ toJson(inputs) }},
           "needs":    ${{ toJson(needs) }},
           "job":      ${{ toJson(job) }},
           "steps":    ${{ toJson(steps) }},
