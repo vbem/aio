@@ -71,7 +71,7 @@ jobs:
           
     - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
       id: login
-      if: github.ref_type == 'tag' || fromJSON(github.event.inputs.img-push)
+      if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
       uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
       with:
         registry: ${{ env.WF_CR_HOST }}
