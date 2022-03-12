@@ -41,7 +41,7 @@ jobs:
       env:
         STEP_GITHUB:  ${{ github.runner }}
       run: |
-        
+        echo $STEP_GITHUB
         
         cat | jq 'del(.token)' > context.github.json <<__EOF__
         ${{ toJSON(github) }}
