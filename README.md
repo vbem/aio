@@ -12,11 +12,9 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/vbem/aio/main/logo.png">
 </p>
-A generic DevOps all-in-one image pre-installed with many tools.
 
 ## What
-
-An All-In-One docker image for command-line debugging or basic CI/CD tasks:
+A generic DevOps all-in-one image pre-installed with many tools.
 - Alpine latest stable version based
 - `tzdata` added and `Asia/Shanghai` as default time-zone. You can change this by setting `TZ` env var at runtime
 - Replaced `ash` to `bash` as default shell
