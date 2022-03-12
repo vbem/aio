@@ -37,7 +37,12 @@ jobs:
     steps:
     # - uses: actions/checkout@v3
     
-    - run: |
+    - name: Show flattened context
+      env:
+        STEP_GITHUB:  ${{ github.runner }}
+      run: |
+        alias flatten=jq '[paths(type != "object" and type != "array") as $path | {"key": $path | join("."), "value": getpath($path)}] | from_entries'
+        
         cat | jq 'del(.token)' > context.github.json <<__EOF__
         ${{ toJSON(github) }}
         __EOF__
@@ -66,7 +71,7 @@ jobs:
           
     - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
       id: login
-      if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
+      if: github.ref_type == 'tag' || fromJSON(github.event.inputs.img-push)
       uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
       with:
         registry: ${{ env.WF_CR_HOST }}
