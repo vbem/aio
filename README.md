@@ -10,7 +10,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/vbem/aio)](https://github.com/vbem/aio/issues)
 
 <p align="center">
-  <img src="https://repository-images.githubusercontent.com/372759229/b03c199c-cead-465b-a2b9-a3f28ad4de0a">
+  <a href="https://hub.docker.com/r/vbem/aio"><img src="https://repository-images.githubusercontent.com/372759229/b03c199c-cead-465b-a2b9-a3f28ad4de0a"></a>
 </p>
 
 ## What
