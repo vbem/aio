@@ -39,7 +39,7 @@ jobs:
     
     - name: Show flattened context
       env:
-        STEP_CONTEXTS: '{"github":${{ toJson(github) }},"job":${{ toJson(job) }}},"steps":${{ toJson(steps) }},"runner":${{ toJson(runner) }},"strategy":${{ toJson(strategy) }},"matrix":${{ toJson(matrix) }},"needs":${{ toJson(needs) }},"inputs":${{ toJson(inputs) }}'
+        STEP_CONTEXTS: '{"github":${{ toJson(github) }},"job":${{ toJson(job) }}}'
       run: |
         echo $STEP_CONTEXTS | jq 'del(.github.token) | [paths(type != "object" and type != "array") as $p | {"key": $p | join("."), "value": getpath($p)}] | from_entries'
         
