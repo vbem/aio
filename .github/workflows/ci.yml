@@ -39,9 +39,9 @@ jobs:
     
     - name: Show flattened context
       env:
-        STEP_GITHUB:  ${{ runner }}
+        STEP_CONTEXTS: '{"runner":${{ toJson(runner) }}}'
       run: |
-        echo $STEP_GITHUB
+        echo $STEP_CONTEXTS
         
         cat | jq 'del(.token)' > context.github.json <<__EOF__
         ${{ toJSON(github) }}
