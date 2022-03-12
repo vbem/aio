@@ -39,7 +39,7 @@ jobs:
     
     - name: Show flattened context
       env:
-        STEP_CONTEXTS: '{"job":${{ toJson(job) }},"steps":${{ toJson(steps) }},"runner":${{ toJson(runner) }},"strategy":${{ toJson(strategy) }},}'
+        STEP_CONTEXTS: '{"job":${{ toJson(job) }},"steps":${{ toJson(steps) }},"runner":${{ toJson(runner) }},"strategy":${{ toJson(strategy) }}}'
       run: |
         echo $STEP_CONTEXTS | jq .
         
