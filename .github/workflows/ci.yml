@@ -40,21 +40,20 @@ jobs:
     - name: Show flattened context
       continue-on-error: true
       run: |
-        jq <<__EOF__
+        jq '[paths(type != "object" and type != "array") as $p | {"key": $p | join("."), "value": getpath($p)}] | from_entries' <<__EOF__
         {
-          "steps": ${{ toJson(inputs) }},
-          "steps": ${{ toJson(needs) }},
-          "steps": ${{ toJson(matrix) }},
-          "steps": ${{ toJson(strategy) }},
-          "steps": ${{ toJson(runner) }},
-          "steps": ${{ toJson(steps) }},
-          "steps": ${{ toJson(job) }},
-          "steps": ${{ toJson(github) }}
+          "github":   ${{ toJson(github) }},
+          "runner":   ${{ toJson(runner) }},
+          "env":      ${{ toJson(github) }},
+          "secrets":  ${{ toJson(github) }},
+          "inputs":   ${{ toJson(inputs) }},
+          "needs":    ${{ toJson(needs) }},
+          "job":      ${{ toJson(job) }},
+          "steps":    ${{ toJson(steps) }},
+          "strategy": ${{ toJson(strategy) }},
+          "matrix":   ${{ toJson(matrix) }}
         }
         __EOF__
-        
-        # echo $STEP_CONTEXTS | jq 'del(.github.token) | [paths(type != "object" and type != "array") as $p | {"key": $p | join("."), "value": getpath($p)}] | from_entries'
-        
         
     - id: meta
       uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
