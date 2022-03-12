@@ -23,8 +23,8 @@ A generic DevOps all-in-one image pre-installed with many tools.
 
 ## Where
 
-- Code repository: https://github.com/vbem/aio
-- Docker repository: https://hub.docker.com/r/vbem/aio
+- [Code repository](https://github.com/vbem/aio)
+- [Docker image repository](https://hub.docker.com/r/vbem/aio)
 
 ## How
 
