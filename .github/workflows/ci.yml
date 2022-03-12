@@ -39,7 +39,7 @@ jobs:
     # https://github.com/marketplace/actions/checkout
     # - uses: actions/checkout@v3
     
-    - name: Show flattened context
+    - name: Show flattened contexts
       if: true # Set false to turn off
       continue-on-error: true
       run: |
@@ -57,7 +57,8 @@ jobs:
         }
         __EOF__
         
-    - id: meta
+    - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref }} 
+      id: meta
       uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
       with:
         images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
