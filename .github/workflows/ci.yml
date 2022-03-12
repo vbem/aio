@@ -41,7 +41,7 @@ jobs:
       env:
         STEP_CONTEXTS: '{"runner":${{ toJson(runner) }}}'
       run: |
-        echo $STEP_CONTEXTS
+        echo $STEP_CONTEXTS | jq .
         
         cat | jq 'del(.token)' > context.github.json <<__EOF__
         ${{ toJSON(github) }}
