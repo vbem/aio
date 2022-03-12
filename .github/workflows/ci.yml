@@ -41,7 +41,7 @@ jobs:
       if: true # Set false to turn off
       continue-on-error: true
       run: |
-        jq '[paths(type!="object" and type!="array") as $p|{"key":$p|join("."),"value":getpath($p)}]|from_entries|to_entries[]|"\(.key): \(.value|@json)"' <<__EOF__
+        jq -r '[paths(type!="object" and type!="array") as $p|{"key":$p|join("."),"value":getpath($p)}]|from_entries|to_entries[]|"\(.key): \(.value|@json)"' <<__EOF__
         {
           "github":   ${{ toJson(github) }},
           "runner":   ${{ toJson(runner) }},
