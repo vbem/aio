@@ -33,21 +33,21 @@ on:
 jobs:
   CI:
     runs-on: ubuntu-latest
-      
+
     steps:
+    # https://github.com/marketplace/actions/checkout
     # - uses: actions/checkout@v3
     
     - name: Show flattened context
       if: true # Set false to turn off
       continue-on-error: true
       run: |
-        jq -r '[paths(type!="object" and type!="array") as $p|{"key":$p|join("."),"value":getpath($p)}]|from_entries|to_entries[]|"\(.key): \(.value|@json)"' <<__EOF__
+        jq -r 'del(.github.token)|[paths(type!="object" and type!="array") as $p|{"key":$p|join("."),"value":getpath($p)}]|from_entries|to_entries[]|"\(.key): \(.value|@json)"' \
+        <<__EOF__
         {
           "github":   ${{ toJson(github) }},
           "runner":   ${{ toJson(runner) }},
           "env":      ${{ toJson(env) }},
-          "secrets":  ${{ toJson(secrets) }},
-          "inputs":   ${{ toJson(inputs) }},
           "needs":    ${{ toJson(needs) }},
           "job":      ${{ toJson(job) }},
           "steps":    ${{ toJson(steps) }},
