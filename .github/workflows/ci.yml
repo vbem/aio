@@ -41,7 +41,7 @@ jobs:
       env:
         STEP_GITHUB:  ${{ github.runner }}
       run: |
-        alias flatten=jq '[paths(type != "object" and type != "array") as $path | {"key": $path | join("."), "value": getpath($path)}] | from_entries'
+        
         
         cat | jq 'del(.token)' > context.github.json <<__EOF__
         ${{ toJSON(github) }}
