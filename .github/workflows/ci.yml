@@ -15,6 +15,11 @@ env:
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
   TZ:             Asia/Shanghai
 
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#concurrency
+concurrency:
+  group: ${{ github.workflow }}@${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     # If you define neither tags(-ignore) nor branches(-ignore), the workflow will run for either branches or tags.
