@@ -33,7 +33,7 @@ on:
         description: 'Push to remote container registry'
         type: boolean
         required: false
-        default: 'false' # actually all inputs are string
+        default: 'false' # actually all inputs are string 
 
 jobs:
   CI:
@@ -84,7 +84,7 @@ jobs:
             
       - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
         id: login
-        if: env.WF_IS_PUSH == 'true'
+        if: env.WF_IS_PUSH == 'true' # https://docs.github.com/en/actions/learn-github-actions/contexts#example-usage-of-the-inputs-context
         uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
         with:
           registry: ${{ env.WF_CR_HOST }}
