@@ -4,6 +4,7 @@
 # https://hub.docker.com/_/alpine
 FROM alpine:3.15 AS fresh
 
+# https://github.com/docker/docker.github.io/blob/master/develop/develop-images/dockerfile_best-practices.md#using-pipes
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
