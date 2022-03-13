@@ -20,6 +20,5 @@ jobs:
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # VALIDATE_ALL_CODEBASE: false
-          # VALIDATE_GITHUB_ACTIONS: false
-          HADOLINT_FAILURE_THRESHOLD: error
+          VALIDATE_GITHUB_ACTIONS: false # https://github.com/rhysd/actionlint/blob/main/docs/usage.md#super-linter
+          HADOLINT_FAILURE_THRESHOLD: error # https://github.com/hadolint/hadolint#configure
