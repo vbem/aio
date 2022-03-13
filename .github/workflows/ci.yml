@@ -9,6 +9,8 @@ env:
   WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
   WF_IMG_REPO:    ${{ github.repository }}
   TZ:             Asia/Shanghai
+  
+  WF_IS_PUSH:       ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
 
 on:
   push:
@@ -33,7 +35,7 @@ on:
 jobs:
   CI:
     runs-on: ubuntu-latest
-
+    
     steps:
     
       # https://github.com/marketplace/actions/checkout
@@ -79,18 +81,18 @@ jobs:
             
       - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
         id: login
-        if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
+        if: env.WF_IS_PUSH == true
         uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
         with:
           registry: ${{ env.WF_CR_HOST }}
           username: ${{ env.WF_CR_USER }}
           password: ${{ env.WF_CR_TOKEN }}
           
-      - name: Build image with push=${{ steps.login.outcome == 'success' }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
+      - name: Build image with push=${{ env.WF_IS_PUSH }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
         uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
         with:
           #context: .
-          push: ${{ steps.login.outcome == 'success' }} # https://docs.github.com/en/actions/learn-github-actions/contexts#steps-context
+          push: ${{ env.WF_IS_PUSH }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       
@@ -100,6 +102,6 @@ jobs:
         env:
           STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
-          docker image inspect ${{ env.STEP_IMG }}
           docker image history ${{ env.STEP_IMG }}
+          docker image inspect ${{ env.STEP_IMG }}
           
