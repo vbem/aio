@@ -33,7 +33,7 @@ on:
         description: 'Push to remote container registry'
         type: boolean
         required: false
-        default: 'false'  # https://docs.github.com/en/actions/learn-github-actions/contexts#example-usage-of-the-inputs-context
+        default: 'false' # actually any input is string
 
 jobs:
   CI:
