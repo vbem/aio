@@ -45,7 +45,7 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 \
 # https://github.com/aliyun/aliyun-cli/releases
 && log "installing latest aliyun-cli" \
-&& wget https://aliyuncli.alicdn.com/aliyun-cli-linux-latest-amd64.tgz -O- | tar xz && chown root:root aliyun && chmod 755 aliyun && mv aliyun /usr/local/bin/ \
+&& wget --progress=dot:giga https://aliyuncli.alicdn.com/aliyun-cli-linux-latest-amd64.tgz -O- | tar xz && chown root:root aliyun && chmod 755 aliyun && mv aliyun /usr/local/bin/ \
 \
 && log "cleaning all cache files" \
 && rm -rf ~/.ash_history ~/.cache/ ~/.config/ ~/.npm* ~/* /var/cache/apk/* /tmp/*
