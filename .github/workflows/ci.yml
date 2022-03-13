@@ -94,3 +94,12 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       
+      - name: Inspect image -> ${{ env.STEP_IMG }}
+        if: true # Set false to turn off
+        continue-on-error: true
+        env:
+          STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+        run: |
+          docker image inspect ${{ env.STEP_IMG }}
+          docker image history ${{ env.STEP_IMG }}
+          
