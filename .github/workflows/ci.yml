@@ -25,16 +25,17 @@ on:
       - '.github/workflows/ci.yml'
   workflow_dispatch:
     inputs:
-      # If a default parameter is not set, the default value of the input is false for a boolean, 0 for a number, and "" for a string.
       # https://docs.github.com/actions/using-workflows/triggering-a-workflow#defining-inputs-for-manually-triggered-workflows
       img-tag:
         description: Image tag (e.g. `v1.2.3-beta.45`), blank to generate a tag with time and SHA
         type: string
         required: false
+        default: ''
       img-push:
         description: 'Push to remote container registry'
         type: boolean
         required: false
+        default: 'false'
 
 jobs:
   CI:
