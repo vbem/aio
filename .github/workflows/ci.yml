@@ -47,13 +47,13 @@ jobs:
     runs-on: ubuntu-latest
     
     outputs:
-      meta-version: ${{ steps.meta.outputs.version }}
-      meta-tags:    ${{ steps.meta.outputs.tags }}
-      meta-labels:  ${{ steps.meta.outputs.labels }}
-      meta-json:    ${{ steps.meta.outputs.json }}
-      build-digest: ${{ steps.build.outputs.digest }}
-      build-meta:   ${{ steps.build.outputs.metadata }}
-      inspect-json: ${{ steps.inspect.outputs.json }}
+      meta-version:   ${{ steps.meta.outputs.version }}
+      meta-tags:      ${{ steps.meta.outputs.tags }}
+      meta-labels:    ${{ steps.meta.outputs.labels }}
+      meta-json:      ${{ steps.meta.outputs.json }}
+      build-digest:   ${{ steps.build.outputs.digest }}
+      build-metadata: ${{ steps.build.outputs.metadata }}
+      inspect-json:   ${{ steps.inspect.outputs.json }}
 
     steps:
     
