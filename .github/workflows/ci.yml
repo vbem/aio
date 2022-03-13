@@ -43,17 +43,22 @@ jobs:
       if: true # Set false to turn off
       continue-on-error: true
       run: |
-        jq -r 'del(.github.token)|[paths(type!="object" and type!="array") as $p|{"key":$p|join("."),"value":getpath($p)}]|from_entries|to_entries[]|"\(.key): \(.value|@json)"' \
+        jq -r '
+          del(.github.token) | del(.github.event) |
+          [ paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} ] | from_entries |
+          to_entries[] | "\(.key): \(.value|@json)"
+        ' \
         <<__EOF__
         {
-          "github":   ${{ toJson(github) }},
-          "runner":   ${{ toJson(runner) }},
-          "inputs":   ${{ toJson(inputs) }},
-          "needs":    ${{ toJson(needs) }},
-          "job":      ${{ toJson(job) }},
-          "steps":    ${{ toJson(steps) }},
-          "strategy": ${{ toJson(strategy) }},
-          "matrix":   ${{ toJson(matrix) }}
+          "github":       ${{ toJson(github) }},
+          "github.event": ${{ toJson(github.event) }},
+          "runner":       ${{ toJson(runner) }},
+          "inputs":       ${{ toJson(inputs) }},
+          "needs":        ${{ toJson(needs) }},
+          "job":          ${{ toJson(job) }},
+          "steps":        ${{ toJson(steps) }},
+          "strategy":     ${{ toJson(strategy) }},
+          "matrix":       ${{ toJson(matrix) }}
         }
         __EOF__
         
