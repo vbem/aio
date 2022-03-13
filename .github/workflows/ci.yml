@@ -33,7 +33,7 @@ on:
         description: 'Push to remote container registry'
         type: boolean
         required: false
-        default: 'false' # actually any input is string
+        default: 'false' # https://docs.github.com/actions/using-workflows/triggering-a-workflow#defining-inputs-for-manually-triggered-workflows
 
 jobs:
   CI:
