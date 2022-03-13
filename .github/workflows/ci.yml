@@ -17,6 +17,7 @@ env:
 
 on:
   push:
+    # If you define neither tags/tags-ignore or branches/branches-ignore, the workflow will run for events affecting either branches or tags.
     paths:
       - 'Dockerfile'
       - '.dockerignore'
