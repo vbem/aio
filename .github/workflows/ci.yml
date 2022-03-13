@@ -54,8 +54,7 @@ jobs:
       build-digest: ${{ steps.build.outputs.digest }}
       build-meta:   ${{ steps.build.outputs.metadata }}
       inspect-json: ${{ steps.inspect.outputs.json }}
-      
-    
+
     steps:
     
       # https://github.com/marketplace/actions/checkout
