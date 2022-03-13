@@ -13,10 +13,10 @@ env:
 on:
   push:
     paths:
-    - 'Dockerfile'
-    - '.dockerignore'
-    - 'src/**'
-    - '.github/workflows/ci.yml'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'src/**'
+      - '.github/workflows/ci.yml'
   workflow_dispatch:
     inputs:
       img-tag:
@@ -36,61 +36,61 @@ jobs:
 
     steps:
     
-    # https://github.com/marketplace/actions/checkout
-    # - uses: actions/checkout@v3
+      # https://github.com/marketplace/actions/checkout
+      #- uses: actions/checkout@v3
     
-    - name: Show flattened contexts
-      if: true # Set false to turn off
-      continue-on-error: true
-      run: |
-        jq -r '
-          del(.github.token) | del(.github.event) |
-          [ paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} ] | from_entries |
-          to_entries[] | "\(.key): \(.value|@json)"
-        ' \
-        <<__EOF__
-        {
-          "github":       ${{ toJson(github) }},
-          "github.event": ${{ toJson(github.event) }},
-          "runner":       ${{ toJson(runner) }},
-          "inputs":       ${{ toJson(inputs) }},
-          "needs":        ${{ toJson(needs) }},
-          "job":          ${{ toJson(job) }},
-          "steps":        ${{ toJson(steps) }},
-          "strategy":     ${{ toJson(strategy) }},
-          "matrix":       ${{ toJson(matrix) }}
-        }
-        __EOF__
-        
-    - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref }} 
-      id: meta
-      uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
-      with:
-        images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
-        # https://semver.org/
-        # https://momentjs.com/docs/#/displaying/format/
-        tags: |
-          type=semver,pattern={{version}}
-          type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
-          type=raw,value=0.${{ github.run_number }}.${{ github.run_attempt }}-time.{{date 'YYYYMMDDHHmmssz'}}.sha.{{sha}},enable=${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}  
-        # https://github.com/opencontainers/image-spec/blob/master/annotations.md
-        labels: |
-          org.opencontainers.image.vendor=${{ github.repository_owner }}
+      - name: Show flattened contexts
+        if: true # Set false to turn off
+        continue-on-error: true
+        run: |
+          jq -r '
+            del(.github.token) | del(.github.event) |
+            [ paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} ] | from_entries |
+            to_entries[] | "\(.key): \(.value|@json)"
+          ' \
+          <<__EOF__
+          {
+            "github":       ${{ toJson(github) }},
+            "github.event": ${{ toJson(github.event) }},
+            "runner":       ${{ toJson(runner) }},
+            "inputs":       ${{ toJson(inputs) }},
+            "needs":        ${{ toJson(needs) }},
+            "job":          ${{ toJson(job) }},
+            "steps":        ${{ toJson(steps) }},
+            "strategy":     ${{ toJson(strategy) }},
+            "matrix":       ${{ toJson(matrix) }}
+          }
+          __EOF__
           
-    - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
-      id: login
-      if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
-      uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
-      with:
-        registry: ${{ env.WF_CR_HOST }}
-        username: ${{ env.WF_CR_USER }}
-        password: ${{ env.WF_CR_TOKEN }}
-        
-    - name: Build image with push=${{ steps.login.outcome == 'success' }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
-      uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
-      with:
-        #context: .
-        push: ${{ steps.login.outcome == 'success' }} # https://docs.github.com/en/actions/learn-github-actions/contexts#steps-context
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-    
+      - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref }} 
+        id: meta
+        uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
+        with:
+          images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
+          # https://semver.org/
+          # https://momentjs.com/docs/#/displaying/format/
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
+            type=raw,value=0.${{ github.run_number }}.${{ github.run_attempt }}-time.{{date 'YYYYMMDDHHmmssz'}}.sha.{{sha}},enable=${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}  
+          # https://github.com/opencontainers/image-spec/blob/master/annotations.md
+          labels: |
+            org.opencontainers.image.vendor=${{ github.repository_owner }}
+            
+      - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
+        id: login
+        if: github.ref_type == 'tag' || github.event.inputs.img-push == 'true'
+        uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
+        with:
+          registry: ${{ env.WF_CR_HOST }}
+          username: ${{ env.WF_CR_USER }}
+          password: ${{ env.WF_CR_TOKEN }}
+          
+      - name: Build image with push=${{ steps.login.outcome == 'success' }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
+        uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
+        with:
+          #context: .
+          push: ${{ steps.login.outcome == 'success' }} # https://docs.github.com/en/actions/learn-github-actions/contexts#steps-context
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      
