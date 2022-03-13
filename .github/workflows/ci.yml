@@ -46,6 +46,16 @@ jobs:
   CI:
     runs-on: ubuntu-latest
     
+    outputs:
+      meta-version: ${{ steps.meta.outputs.version }}
+      meta-tags:    ${{ steps.meta.outputs.tags }}
+      meta-labels:  ${{ steps.meta.outputs.labels }}
+      meta-json:    ${{ steps.meta.outputs.json }}
+      build-digest: ${{ steps.build.outputs.digest }}
+      build-meta:   ${{ steps.build.outputs.metadata }}
+      inspect-json: ${{ steps.inspect.outputs.json }}
+      
+    
     steps:
     
       # https://github.com/marketplace/actions/checkout
@@ -99,6 +109,7 @@ jobs:
           password: ${{ env.WF_CR_TOKEN }}
           
       - name: Build image with push=${{ env.WF_IS_PUSH }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
+        id: build
         uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
         with:
           #context: .
@@ -114,4 +125,4 @@ jobs:
         run: |
           docker image history ${{ env.STEP_IMG }}
           docker image inspect ${{ env.STEP_IMG }}
-          
+          echo "::set-output name=json::$(docker image inspect ${{ env.STEP_IMG }})"
