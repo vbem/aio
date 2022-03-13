@@ -67,7 +67,7 @@ jobs:
           }
           __EOF__
           
-      - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref }} 
+      - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref_type }} ${{ github.ref_name }}
         id: meta
         uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
         with:
