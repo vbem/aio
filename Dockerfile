@@ -4,12 +4,8 @@
 # https://hub.docker.com/_/alpine
 FROM alpine:3.15 AS fresh
 
-# https://docs.docker.com/engine/reference/builder/#shell
-# https://github.com/docker/docker.github.io/blob/master/develop/develop-images/dockerfile_best-practices.md#using-pipes
-# https://github.com/hadolint/hadolint/wiki/DL4006
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
-
-RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
+RUN set -o pipefail \
+&& function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
 \
 # https://wiki.alpinelinux.org/wiki/Alpine_setup_scripts#setup-apkrepos
 # https://mirrors.alpinelinux.org/
@@ -57,12 +53,18 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 
 # HEALTHCHECK --timeout=1s --retries=1 CMD true || false
 
+# https://docs.docker.com/engine/reference/builder/#shell
+# https://github.com/docker/docker.github.io/blob/master/develop/develop-images/dockerfile_best-practices.md#using-pipes
+# https://github.com/hadolint/hadolint/wiki/DL4006
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 WORKDIR /root
 
 ENV \
 LANG=C.UTF-8 \
 # PS1='\[\e[1;7;94m\] ?=$? $(. /etc/os-release && echo $ID-$VERSION_ID) \u@$(hostname -i)@\H:\w \[\e[0m\]\n\$ ' \
 PS1='\[\e]0;\u@\h: \w\a\]\[\e[0m\]\[\e[1;97;41m\]$(r=$?; [ $r -ne 0 ] && echo " \\$?=$r ")\[\e[0m\]\[\e[1;97;43m\]$([ 1 -ne $SHLVL ] && echo " \\$SHLVL=$SHLVL ")\[\e[0m\]\[\e[3;37;100m\] $(source /etc/os-release && echo $ID-$VERSION_ID) \[\e[0m\]\[\e[95;40m\] \u\[\e[0m\]\[\e[1;35;40m\]$([ "$(id -ng)" != "$(id -nu)" ] && echo ":$(id -ng)")\[\e[0m\]\[\e[2;90;40m\]@\[\e[0m\]\[\e[3;32;40m\]$(hostname -i)\[\e[0m\]\[\e[2;90;40m\]@\[\e[0m\]\[\e[4;34;40m\]\H\[\e[0m\]\[\e[2;90;40m\]:\[\e[0m\]\[\e[1;33;40m\]$PWD \[\e[0m\]\n\[\e[0m\]\[\e[1;31m\]\$\[\e[0m\] '
+
 CMD ["/bin/bash"]
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 FROM fresh AS tester
@@ -129,7 +131,7 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && helm version \
 \
 && log "Test aliyun-cli" \
-&& aliyun > aliyun.out && head -n1 aliyun.out \
+&& aliyun | head -n1 \
 \
 && log "Passed all test cases!" \
 && touch /tested
