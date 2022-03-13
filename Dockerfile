@@ -7,7 +7,7 @@ FROM alpine:3.15 AS fresh
 # https://docs.docker.com/engine/reference/builder/#shell
 # https://github.com/docker/docker.github.io/blob/master/develop/develop-images/dockerfile_best-practices.md#using-pipes
 # https://github.com/hadolint/hadolint/wiki/DL4006
-SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 
 RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
 \
@@ -129,7 +129,7 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && helm version \
 \
 && log "Test aliyun-cli" \
-&& aliyun \
+&& aliyun | head -n1 \
 \
 && log "Passed all test cases!" \
 && touch /tested
