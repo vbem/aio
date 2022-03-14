@@ -85,7 +85,7 @@ jobs:
               "matrix":       ${{ toJson(matrix) }}
             }
         run: |
-          echo "::group::flattened contexts"
+          echo "::group::contexts"
           echo "$STEP_CONTEXTS" | jq -r 'del(.github.token) | del(.github.event) |
             [ paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} ] | from_entries |
             to_entries[] | "\(.key): \(.value|@json)"
@@ -132,6 +132,10 @@ jobs:
         env:
           STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
+          echo "::group::history"
           docker image history ${{ env.STEP_IMG }}
+          echo "::endgroup::"
+          echo "::group::inspect"
           docker image inspect ${{ env.STEP_IMG }}
+          echo "::endgroup::"
           echo "::set-output name=json::$(docker image inspect ${{ env.STEP_IMG }})"
