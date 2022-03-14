@@ -80,7 +80,7 @@ jobs:
             '
             echo "::endgroup::"
           }
-          echo '{"github":${{ toJson(github) }}}' | jq -r '
+          echo '{"github":${{ toJson(github) }},"a":"'"}' | jq -r '
             del(.github.token) | del(.github.event) |
             [ paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} ] | from_entries |
             to_entries[] | "\(.key): \(.value|@json)"
