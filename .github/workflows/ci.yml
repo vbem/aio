@@ -87,7 +87,7 @@ jobs:
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
         continue-on-error: true
         run: |
-          function a{
+          function a {
             echo yes
           }
           a
