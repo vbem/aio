@@ -71,26 +71,20 @@ jobs:
         if: true # Set false to turn off
         continue-on-error: true
         run: |
-          echo "::group::Contexts"
-          jq -r '
+          function flattenContext {
+            echo "::group::Context -> $1"
+            echo "$2" | jq -r '
+              del(.github.token) | del(.github.event) |
+              [ paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} ] | from_entries |
+              to_entries[] | "\(.key): \(.value|@json)"
+            '
+            echo "::endgroup::"
+          }
+          echo '{"github":${{ toJson(github) }}}' | jq -r '
             del(.github.token) | del(.github.event) |
             [ paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} ] | from_entries |
             to_entries[] | "\(.key): \(.value|@json)"
-          ' \
-          <<__EOF__
-          {
-            "github":       ${{ toJson(github) }},
-            "github.event": ${{ toJson(github.event) }},
-            "runner":       ${{ toJson(runner) }},
-            "inputs":       ${{ toJson(inputs) }},
-            "needs":        ${{ toJson(needs) }},
-            "job":          ${{ toJson(job) }},
-            "steps":        ${{ toJson(steps) }},
-            "strategy":     ${{ toJson(strategy) }},
-            "matrix":       ${{ toJson(matrix) }}
-          }
-          __EOF__
-          echo "::endgroup::"
+          '
           
       - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref_type }} ${{ github.ref_name }}
         id: meta
