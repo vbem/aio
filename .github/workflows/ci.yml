@@ -8,7 +8,7 @@ env:
   WF_CR_HOST:     docker.io
   WF_CR_USER:     ${{ github.repository_owner }}
   WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
-  WF_IMG_REPO:    ${{ github.repository }}
+  WF_CR_REPO:     ${{ github.repository }}
   
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
@@ -107,7 +107,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
         with:
-          images: ${{ env.WF_CR_HOST }}/${{ env.WF_IMG_REPO }}
+          images: ${{ env.WF_CR_HOST }}/${{ env.WF_CR_REPO }}
           # https://semver.org/
           # https://momentjs.com/docs/#/displaying/format/
           tags: |
