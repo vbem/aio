@@ -87,6 +87,10 @@ jobs:
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
         continue-on-error: true
         run: |
+          function a{
+            echo yes
+          }
+          a
           source <<< "$WF_RUN_SETUP"
           jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'context github (without github.event)' <<__EOF__
               {"github":${{ toJson(github) }}}
