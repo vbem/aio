@@ -146,7 +146,3 @@ jobs:
           docker image inspect ${{ env.STEP_IMG }} | flattenJson | toGroup 'inspect'
           docker image inspect ${{ env.STEP_IMG }} | jq -Mcr | toOutput 'json'
           
-          docker image inspect ${{ env.STEP_IMG }} | toEnv asdf
-
-      - run: |
-          echo "$asdf"
