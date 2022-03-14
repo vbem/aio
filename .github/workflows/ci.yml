@@ -84,7 +84,6 @@ jobs:
           STEP_CTX_GITHUB:  ${{ toJson(github) }}
           STEP_CTX_RUNNER:  ${{ toJson(runner) }}
         run: |
-          # source <(echo "$WF_RUN_SETUP")
           ${{ env.WF_RUN_SETUP }}
           echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'github without event'
           echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | flattenJson | toGroup 'github.event'
@@ -128,7 +127,7 @@ jobs:
         env:
           STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
-          source <(echo "$WF_RUN_SETUP")
+          ${{ env.WF_RUN_SETUP }}
           docker image history ${{ env.STEP_IMG }} | toGroup 'history'
           docker image inspect ${{ env.STEP_IMG }} | flattenJson | toGroup 'inspect'
           docker image inspect ${{ env.STEP_IMG }} | jq -Mcr | toOutput 'json'
