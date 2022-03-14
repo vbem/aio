@@ -87,9 +87,9 @@ jobs:
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
         continue-on-error: true
         env:
-            STEP_CTX_GITHUB:  {"github":${{ toJson(github) }}}
-            STEP_CTX_EVENT:   {"github.event":${{ toJson(github.event) }}}
-            STEP_CTX_RUNNER:  {"runner":${{ toJson(runner) }}}
+          STEP_CTX_GITHUB:  {"github":${{ toJson(github) }}}
+          STEP_CTX_EVENT:   {"github.event":${{ toJson(github.event) }}}
+          STEP_CTX_RUNNER:  {"runner":${{ toJson(runner) }}}
         run: |
           source <(echo "$WF_RUN_SETUP")
           echo "$STEP_CTX_GITHUB" | jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'context github (without github.event)'
