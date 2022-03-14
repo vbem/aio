@@ -60,6 +60,13 @@ jobs:
       # https://github.com/marketplace/actions/checkout
       #- uses: actions/checkout@v3
     
+      - name: test
+        run: |
+          echo '::debug::DEBUG'
+          echo '::notice::NOTICE'
+          echo '::warning::WARNING'
+          echo '::error::ERROR'
+        
       - name: Show flattened contexts
         if: true # Set false to turn off
         continue-on-error: true
