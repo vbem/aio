@@ -67,14 +67,13 @@ jobs:
     runs-on: ubuntu-latest
     
     outputs:
-      meta:   ${{ toJson(steps.meta.outputs) }}
-      build:  ${{ toJson(steps.build.outputs) }}
       meta-version:   ${{ steps.meta.outputs.version }}
       meta-tags:      ${{ steps.meta.outputs.tags }}
       meta-labels:    ${{ steps.meta.outputs.labels }}
       meta-json:      ${{ steps.meta.outputs.json }}
       build-digest:   ${{ steps.build.outputs.digest }}
       build-metadata: ${{ steps.build.outputs.metadata }}
+      inspect-json:   ${{ steps.inspect.outputs.json }}
 
     steps:
     
@@ -140,9 +139,9 @@ jobs:
         run: |
           source <(echo "$WF_RUN_SETUP")
           docker image history ${{ env.STEP_IMG }} | toGroup 'history'
-          docker image inspect ${{ env.STEP_IMG }} | toGroup 'inspect'
+          docker image inspect ${{ env.STEP_IMG }} | flattenJson | toGroup 'inspect'
           docker image inspect ${{ env.STEP_IMG }} | jq -Mcr | toOutput 'json'
 
       - run: |
           source <(echo "$WF_RUN_SETUP")
-          echo '${{ steps.inspect.outputs.json }}' | jq | toGroup steps.inspect.outputs.json
+          echo '${{ steps.inspect.outputs.json }}' | toGroup steps.inspect.outputs.json
