@@ -92,7 +92,8 @@ jobs:
         run: |
           source <(echo "$WF_RUN_SETUP")
           echo {'"runner"':"$STEP_CTX_RUNNER"} | flattenJson | toGroup 'runner'
-          echo {'"github"':"$STEP_CTX_GITHUB"} | jq -Mcr 'del(.github.token)' | flattenJson | toGroup 'github'
+          echo {'"github"':"$STEP_CTX_GITHUB"} | jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'github without event'
+          echo {'"github"':"$STEP_CTX_GITHUB"} | jq -Mcr 'with_entries(select(.key == "event"))' | flattenJson | toGroup 'event'
           
       - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref_type }} ${{ github.ref_name }}
         id: meta
