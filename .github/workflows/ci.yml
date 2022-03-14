@@ -132,7 +132,6 @@ jobs:
         env:
           STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
-          
           echo "::set-output name=json::$(docker image inspect ${{ env.STEP_IMG }})"
           
           echo "::group::history"
@@ -142,3 +141,6 @@ jobs:
           echo "::group::inspect"
           docker image inspect ${{ env.STEP_IMG }}
           echo "::endgroup::"
+          
+      - run: |
+          echo ${{ stpes.inspect.outputs.json }}
