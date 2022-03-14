@@ -32,63 +32,6 @@ env:
     function flattenJson {
       jq --Mcr --arg spe "${1:- -> }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($spe)\(.value|@json)"'
     }
-    
-    # Print flattened contexts https://docs.github.com/en/actions/learn-github-actions/contexts
-    function printCtxGithubWithoutEvent {
-      jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'context github (without github.event)' <<__EOF__
-        {"github":${{ toJson(github) }}}
-      __EOF__
-    }
-    function printCtxGithubEvent {
-      flattenJson | toGroup 'context github.event' <<__EOF__
-        {"github.event":${{ toJson(github.event) }}}
-      __EOF__
-    }
-    function printCtxEnv {
-      flattenJson | toGroup 'context env' <<__EOF__
-        {"env":${{ toJson(env) }}}
-      __EOF__
-    }
-    function printCtxSecrets {
-      flattenJson | toGroup 'context secrets' <<__EOF__
-        {"secrets":${{ toJson(secrets) }}}
-      __EOF__
-    }
-    function printCtxNeeds {
-      flattenJson | toGroup 'context needs' <<__EOF__
-        {"needs":${{ toJson(needs) }}}
-      __EOF__
-    }
-    function printCtxInputs {
-      flattenJson | toGroup 'context inputs' <<__EOF__
-        {"inputs":${{ toJson(inputs) }}}
-      __EOF__
-    }
-    function printCtxRunner {
-      flattenJson | toGroup 'context runner' <<__EOF__
-        {"runner":${{ toJson(runner) }}}
-      __EOF__
-    }
-    function printCtxJob {
-      flattenJson | toGroup 'context job' <<__EOF__
-        {"job":${{ toJson(job) }}}
-      __EOF__
-    }
-    function printCtxSteps {
-      flattenJson | toGroup 'context steps' <<__EOF__
-        {"steps":${{ toJson(steps) }}}
-      __EOF__
-    }
-    function printCtxStrategy {
-      flattenJson | toGroup 'context strategy' <<__EOF__
-        {"strategy":${{ toJson(strategy) }}}
-      __EOF__
-    }
-    function printCtxMatrix {
-      flattenJson | toGroup 'context matrix' <<__EOF__
-        {"matrix":${{ toJson(matrix) }}}
-      __EOF__
-    }
 
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-only-cancel-in-progress-jobs-or-runs-for-the-current-workflow
 concurrency:
@@ -141,11 +84,44 @@ jobs:
           echo '::warning title=TITLE::WARNING'
           echo '::error title=TITLE::ERROR'
         
-      - name: Show contexts
+      - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
         continue-on-error: true
         run: |
           $WF_RUN_SETUP
-          printCtxGithubWithoutEvent; printCtxEvent; printCtxRunner
+          jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'context github (without github.event)' <<__EOF__
+              {"github":${{ toJson(github) }}}
+          __EOF__
+          flattenJson | toGroup 'context github.event' <<__EOF__
+              {"github.event":${{ toJson(github.event) }}}
+          __EOF__
+          flattenJson | toGroup 'context env' <<__EOF__
+              {"env":${{ toJson(env) }}}
+          __EOF__
+          flattenJson | toGroup 'context secrets' <<__EOF__
+              {"secrets":${{ toJson(secrets) }}}
+          __EOF__
+          flattenJson | toGroup 'context needs' <<__EOF__
+              {"needs":${{ toJson(needs) }}}
+          __EOF__
+          flattenJson | toGroup 'context inputs' <<__EOF__
+              {"inputs":${{ toJson(inputs) }}}
+          __EOF__
+          flattenJson | toGroup 'context runner' <<__EOF__
+              {"runner":${{ toJson(runner) }}}
+          __EOF__
+          flattenJson | toGroup 'context job' <<__EOF__
+              {"job":${{ toJson(job) }}}
+          __EOF__
+          flattenJson | toGroup 'context steps' <<__EOF__
+              {"steps":${{ toJson(steps) }}}
+          __EOF__
+          flattenJson | toGroup 'context strategy' <<__EOF__
+              {"strategy":${{ toJson(strategy) }}}
+          __EOF__
+          flattenJson | toGroup 'context matrix' <<__EOF__
+              {"matrix":${{ toJson(matrix) }}}
+          __EOF__
+          }
           
       - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref_type }} ${{ github.ref_name }}
         id: meta
