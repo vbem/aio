@@ -16,17 +16,31 @@ env:
   TZ:             Asia/Shanghai
   WF_RUN_SETUP:   |
     # Group stdin to stdout with title
-    #   $1: group tile, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
+    # $1: group tile
+    # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
     function toGroup {
       echo "::group::$1"; cat; echo "::endgroup::"
-    }    
+    }
+    
+    # Set stdin as value to environment with given name
+    # $1: environment variable name
+    # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+    function toEnv {
+      echo "$1<<__HEREDOC__" >> $GITHUB_ENV
+      cat >> $GITHUB_ENV
+      echo "__HEREDOC__" >> $GITHUB_ENV
+    }
+    
     # Set stdin as value to output of current step with given name
-    #   #1: output name, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
+    # $1: output name
+    # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
+    # https://renehernandez.io/snippets/multiline-strings-as-a-job-output-in-github-actions/
     function toOutput {
       val="$(< /dev/stdin)"
       echo "::set-output name=$1::$val"
       echo "$val" | toGroup "set-output -> $1"
-    }    
+    }
+    
     # Flatten JSON to key-value lines
     #   $1: separator (default as ' -> ')
     function flattenJson {
@@ -131,4 +145,8 @@ jobs:
           docker image history ${{ env.STEP_IMG }} | toGroup 'history'
           docker image inspect ${{ env.STEP_IMG }} | flattenJson | toGroup 'inspect'
           docker image inspect ${{ env.STEP_IMG }} | jq -Mcr | toOutput 'json'
+          
+          docker image inspect ${{ env.STEP_IMG }} | toEnv asdf
 
+      - run: |
+          echo "$asdf"
