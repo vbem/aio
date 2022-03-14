@@ -24,7 +24,9 @@ env:
     # Set stdin as value to output of current step with given name
     #   #1: output name, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
     function toOutput {
-      echo "::set-output name=$1::$(cat)"
+      val="$(< /dev/stdin)"
+      echo "::notice::set-output $1 -> $val"
+      echo "::set-output name=$1::$val"
     }
     
     # Flatten JSON to key-value lines
@@ -141,4 +143,4 @@ jobs:
 
       - run: |
           source <(echo "$WF_RUN_SETUP")
-          echo '${{ steps.inspect.outputs.json }}' | jq | toGroup
+          echo '${{ steps.inspect.outputs.json }}' | jq | toGroup steps.inspect.outputs.json
