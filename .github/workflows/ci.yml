@@ -60,10 +60,6 @@ on:
         required: false
         default: 'false'
 
-defaults:
-  run:
-    shell: bash --noprofile --rcfile <(echo "$WF_RUN_SETUP") -eo pipefail {0}
-
 jobs:
   CI:
     runs-on: ubuntu-latest
@@ -88,7 +84,8 @@ jobs:
           STEP_CTX_GITHUB:  ${{ toJson(github) }}
           STEP_CTX_RUNNER:  ${{ toJson(runner) }}
         run: |
-          #source <(echo "$WF_RUN_SETUP")
+          # source <(echo "$WF_RUN_SETUP")
+          ${{ env.WF_RUN_SETUP }}
           echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'github without event'
           echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | flattenJson | toGroup 'github.event'
           echo {'"runner"':"$STEP_CTX_RUNNER"} | flattenJson | toGroup 'runner'
