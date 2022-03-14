@@ -143,4 +143,4 @@ jobs:
           echo "::endgroup::"
           
       - run: |
-          echo ${{ stpes.inspect.outputs.json }}
+          echo ${{ steps.inspect.outputs.json }}
