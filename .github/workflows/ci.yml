@@ -25,8 +25,8 @@ env:
     #   #1: output name, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
     function toOutput {
       val="$(< /dev/stdin)"
-      echo "::notice::set-output $1 -> $val"
       echo "::set-output name=$1::$val"
+      echo "$val" | toGroup "::notice::set-output -> $1"
     }
     
     # Flatten JSON to key-value lines
