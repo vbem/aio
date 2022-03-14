@@ -15,9 +15,9 @@ env:
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
   TZ:             Asia/Shanghai
   WF_RUN_SETUP:   |
-    function toGroup {  
-      # Group stdin to stdout with title
-      #   $1: group tile, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
+    # Group stdin to stdout with title
+    #   $1: group tile, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
+    function toGroup {
       echo "::group::$1"; cat; echo "::endgroup::"
     }
     
@@ -87,38 +87,38 @@ jobs:
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
         continue-on-error: true
         run: |
-          $WF_RUN_SETUP
+          source <<< "$WF_RUN_SETUP"
           jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'context github (without github.event)' <<__EOF__
               {"github":${{ toJson(github) }}}
           __EOF__
-          flattenJson | toGroup 'context github.event' <<__EOF__
+          flattenJson | toGroup 'context github.event' <<"__EOF__"
               {"github.event":${{ toJson(github.event) }}}
           __EOF__
-          flattenJson | toGroup 'context env' <<__EOF__
+          flattenJson | toGroup 'context env' <<"__EOF__"
               {"env":${{ toJson(env) }}}
           __EOF__
-          flattenJson | toGroup 'context secrets' <<__EOF__
+          flattenJson | toGroup 'context secrets' <<"__EOF__"
               {"secrets":${{ toJson(secrets) }}}
           __EOF__
-          flattenJson | toGroup 'context needs' <<__EOF__
+          flattenJson | toGroup 'context needs' <<"__EOF__"
               {"needs":${{ toJson(needs) }}}
           __EOF__
-          flattenJson | toGroup 'context inputs' <<__EOF__
+          flattenJson | toGroup 'context inputs' <<"__EOF__"
               {"inputs":${{ toJson(inputs) }}}
           __EOF__
-          flattenJson | toGroup 'context runner' <<__EOF__
+          flattenJson | toGroup 'context runner' <<"__EOF__"
               {"runner":${{ toJson(runner) }}}
           __EOF__
-          flattenJson | toGroup 'context job' <<__EOF__
+          flattenJson | toGroup 'context job' <<"__EOF__"
               {"job":${{ toJson(job) }}}
           __EOF__
-          flattenJson | toGroup 'context steps' <<__EOF__
+          flattenJson | toGroup 'context steps' <<"__EOF__"
               {"steps":${{ toJson(steps) }}}
           __EOF__
-          flattenJson | toGroup 'context strategy' <<__EOF__
+          flattenJson | toGroup 'context strategy' <<"__EOF__"
               {"strategy":${{ toJson(strategy) }}}
           __EOF__
-          flattenJson | toGroup 'context matrix' <<__EOF__
+          flattenJson | toGroup 'context matrix' <<"__EOF__"
               {"matrix":${{ toJson(matrix) }}}
           __EOF__
           }
@@ -162,7 +162,7 @@ jobs:
         env:
           STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
-          $WF_RUN_SETUP
+          source <<< "$WF_RUN_SETUP"
           docker image history ${{ env.STEP_IMG }} | toGroup 'history'
           docker image inspect ${{ env.STEP_IMG }} | toGroup 'inspect'
           docker image inspect ${{ env.STEP_IMG }} | jq -Mcr | toOutput 'json'
