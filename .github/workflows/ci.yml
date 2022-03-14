@@ -134,8 +134,10 @@ jobs:
         run: |
           echo "::group::history"
           docker image history ${{ env.STEP_IMG }}
-          echo "::endgroup::"
+          echo "::endgroup::history"
+          
           echo "::group::inspect"
           docker image inspect ${{ env.STEP_IMG }}
-          echo "::endgroup::"
+          echo "::endgroup::inspect"
+          
           echo "::set-output name=json::$(docker image inspect ${{ env.STEP_IMG }})"
