@@ -87,14 +87,12 @@ jobs:
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
         continue-on-error: true
         env:
-          STEP_CTX_GITHUB:  {"github":${{ toJson(github) }}}
-          STEP_CTX_EVENT:   {"github.event":${{ toJson(github.event) }}}
-          STEP_CTX_RUNNER:  {"runner":${{ toJson(runner) }}}
+          STEP_CTX_RUNNER:  ${{ toJson(runner) }}
+          STEP_CTX_GITHUB:  ${{ toJson(github) }}
         run: |
           source <(echo "$WF_RUN_SETUP")
-          echo "$STEP_CTX_GITHUB" | jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'context github (without github.event)'
-          echo "$STEP_CTX_EVENT" | flattenJson | toGroup 'context github.event'
-          echo "$STEP_CTX_RUNNER" | flattenJson | toGroup 'context runner'
+          echo {'"runner"':"$STEP_CTX_RUNNER"} | flattenJson | toGroup 'runner'
+          echo {'"github"':"$STEP_CTX_GITHUB"} | jq -Mcr 'del(.github.token)' | flattenJson | toGroup 'github'
           
       - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref_type }} ${{ github.ref_name }}
         id: meta
