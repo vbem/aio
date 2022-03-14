@@ -26,7 +26,7 @@ env:
     function toOutput {
       val="$(< /dev/stdin)"
       echo "::set-output name=$1::$val"
-      echo "$val" | toGroup "::notice::set-output -> $1"
+      echo "$val" | toGroup "set-output -> $1"
     }
     
     # Flatten JSON to key-value lines
@@ -67,6 +67,8 @@ jobs:
     runs-on: ubuntu-latest
     
     outputs:
+      meta:   ${{ toJson(steps.meta.outputs) }}
+      build:  ${{ toJson(steps.build.outputs) }}
       meta-version:   ${{ steps.meta.outputs.version }}
       meta-tags:      ${{ steps.meta.outputs.tags }}
       meta-labels:    ${{ steps.meta.outputs.labels }}
@@ -94,7 +96,7 @@ jobs:
         run: |
           source <(echo "$WF_RUN_SETUP")
           echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'github without event'
-          echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | flattenJson | toGroup 'event'
+          echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | flattenJson | toGroup 'github.event'
           echo {'"runner"':"$STEP_CTX_RUNNER"} | flattenJson | toGroup 'runner'
           
       - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref_type }} ${{ github.ref_name }}
