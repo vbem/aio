@@ -89,7 +89,7 @@ jobs:
         run: |
           source <(echo "$WF_RUN_SETUP")
           
-          jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson <<"__EOF__"
+          jq 'del(.github.token)|del(.github.event)' | flattenJson <<"__EOF__"
             {"github":${{ toJson(github) }}}
           __EOF__
           
@@ -99,34 +99,8 @@ jobs:
           flattenJson | toGroup 'context github.event' <<"__EOF__"
               {"github.event":${{ toJson(github.event) }}}
           __EOF__
-          flattenJson | toGroup 'context env' <<"__EOF__"
-              {"env":${{ toJson(env) }}}
-          __EOF__
-          flattenJson | toGroup 'context secrets' <<"__EOF__"
-              {"secrets":${{ toJson(secrets) }}}
-          __EOF__
-          flattenJson | toGroup 'context needs' <<"__EOF__"
-              {"needs":${{ toJson(needs) }}}
-          __EOF__
-          flattenJson | toGroup 'context inputs' <<"__EOF__"
-              {"inputs":${{ toJson(inputs) }}}
-          __EOF__
           flattenJson | toGroup 'context runner' <<"__EOF__"
               {"runner":${{ toJson(runner) }}}
-          __EOF__
-          flattenJson | toGroup 'context job' <<"__EOF__"
-              {"job":${{ toJson(job) }}}
-          __EOF__
-          flattenJson | toGroup 'context steps' <<"__EOF__"
-              {"steps":${{ toJson(steps) }}}
-          __EOF__
-          flattenJson | toGroup 'context strategy' <<"__EOF__"
-              {"strategy":${{ toJson(strategy) }}}
-          __EOF__
-          flattenJson | toGroup 'context matrix' <<"__EOF__"
-              {"matrix":${{ toJson(matrix) }}}
-          __EOF__
-          }
           
       - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref_type }} ${{ github.ref_name }}
         id: meta
