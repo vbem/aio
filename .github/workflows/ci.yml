@@ -14,6 +14,81 @@ env:
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
   TZ:             Asia/Shanghai
+  WF_RUN_SETUP:   |
+    # Group stdin to stdout with title
+    #   $1: group tile, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
+    function toGroup {
+      echo "::group::$1"; cat; echo "::endgroup::"
+    }
+    
+    # Set stdin as value to output of current step with given name
+    #   #1: output name, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
+    function toOutput {
+      echo "::set-output name=$1::$(cat)"
+    }
+    
+    # Flatten JSON to key-value lines
+    #   $1: separator (default as ' -> ')
+    function flattenJson {
+      jq --Mcr --arg spe "${1:- -> }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($spe)\(.value|@json)"'
+    }
+    
+    # Print flattened contexts https://docs.github.com/en/actions/learn-github-actions/contexts
+    function printCtxGithubWithoutEvent {
+      jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'context github (without github.event)' <<__EOF__
+        {"github":${{ toJson(github) }}}
+      __EOF__
+    }
+    function printCtxGithubEvent {
+      flattenJson | toGroup 'context github.event' <<__EOF__
+        {"github.event":${{ toJson(github.event) }}}
+      __EOF__
+    }
+    function printCtxEnv {
+      flattenJson | toGroup 'context env' <<__EOF__
+        {"env":${{ toJson(env) }}}
+      __EOF__
+    }
+    function printCtxSecrets {
+      flattenJson | toGroup 'context secrets' <<__EOF__
+        {"secrets":${{ toJson(secrets) }}}
+      __EOF__
+    }
+    function printCtxNeeds {
+      flattenJson | toGroup 'context needs' <<__EOF__
+        {"needs":${{ toJson(needs) }}}
+      __EOF__
+    }
+    function printCtxInputs {
+      flattenJson | toGroup 'context inputs' <<__EOF__
+        {"inputs":${{ toJson(inputs) }}}
+      __EOF__
+    }
+    function printCtxRunner {
+      flattenJson | toGroup 'context runner' <<__EOF__
+        {"runner":${{ toJson(runner) }}}
+      __EOF__
+    }
+    function printCtxJob {
+      flattenJson | toGroup 'context job' <<__EOF__
+        {"job":${{ toJson(job) }}}
+      __EOF__
+    }
+    function printCtxSteps {
+      flattenJson | toGroup 'context steps' <<__EOF__
+        {"steps":${{ toJson(steps) }}}
+      __EOF__
+    }
+    function printCtxStrategy {
+      flattenJson | toGroup 'context strategy' <<__EOF__
+        {"strategy":${{ toJson(strategy) }}}
+      __EOF__
+    }
+    function printCtxMatrix {
+      flattenJson | toGroup 'context matrix' <<__EOF__
+        {"matrix":${{ toJson(matrix) }}}
+      __EOF__
+    }
 
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-only-cancel-in-progress-jobs-or-runs-for-the-current-workflow
 concurrency:
@@ -66,28 +141,11 @@ jobs:
           echo '::warning title=TITLE::WARNING'
           echo '::error title=TITLE::ERROR'
         
-      - name: Show flattened contexts
+      - name: Show contexts
         continue-on-error: true
-        env:
-          STEP_CONTEXTS: |
-            {
-              "github":       ${{ toJson(github) }},
-              "github.event": ${{ toJson(github.event) }},
-              "runner":       ${{ toJson(runner) }},
-              "inputs":       ${{ toJson(inputs) }},
-              "needs":        ${{ toJson(needs) }},
-              "job":          ${{ toJson(job) }},
-              "steps":        ${{ toJson(steps) }},
-              "strategy":     ${{ toJson(strategy) }},
-              "matrix":       ${{ toJson(matrix) }}
-            }
         run: |
-          echo "::group::contexts"
-          echo "$STEP_CONTEXTS" | jq -r 'del(.github.token) | del(.github.event) |
-            [ paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} ] | from_entries |
-            to_entries[] | "\(.key): \(.value|@json)"
-          '
-          echo "::endgroup::"
+          $WF_RUN_SETUP
+          printCtxGithubWithoutEvent; printCtxEvent; printCtxRunner
           
       - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref_type }} ${{ github.ref_name }}
         id: meta
@@ -123,13 +181,15 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
       
       - name: Inspect image -> ${{ env.STEP_IMG }}
+        id: inspect
         continue-on-error: true
         env:
           STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
-          echo "::group::history"
-          docker image history ${{ env.STEP_IMG }}
-          echo "::endgroup::"
-          echo "::group::inspect"
-          docker image inspect ${{ env.STEP_IMG }}
-          echo "::endgroup::"
+          $WF_RUN_SETUP
+          docker image history ${{ env.STEP_IMG }} | toGroup 'history'
+          docker image inspect ${{ env.STEP_IMG }} | toGroup 'inspect'
+          docker image inspect ${{ env.STEP_IMG }} | jq -Mcr | toOutput 'json'
+
+      - run: |
+          echo '${{ steps.inspect.outputs.json }}' | jq | toGroup
