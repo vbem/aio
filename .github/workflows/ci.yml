@@ -15,9 +15,9 @@ env:
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
   TZ:             Asia/Shanghai
   WF_RUN_SETUP:   |
-    # Group stdin to stdout with title
-    #   $1: group tile, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
-    function toGroup {
+    function toGroup {  
+      # Group stdin to stdout with title
+      #   $1: group tile, https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
       echo "::group::$1"; cat; echo "::endgroup::"
     }
     
