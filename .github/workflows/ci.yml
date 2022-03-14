@@ -87,11 +87,7 @@ jobs:
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
         continue-on-error: true
         run: |
-          function a {
-            echo yes
-          }
-          a
-          source <<< "$WF_RUN_SETUP"
+          source <(echo "$WF_RUN_SETUP")
           jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'context github (without github.event)' <<__EOF__
               {"github":${{ toJson(github) }}}
           __EOF__
@@ -166,10 +162,11 @@ jobs:
         env:
           STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
-          source <<< "$WF_RUN_SETUP"
+          source <(echo "$WF_RUN_SETUP")
           docker image history ${{ env.STEP_IMG }} | toGroup 'history'
           docker image inspect ${{ env.STEP_IMG }} | toGroup 'inspect'
           docker image inspect ${{ env.STEP_IMG }} | jq -Mcr | toOutput 'json'
 
       - run: |
+          source <(echo "$WF_RUN_SETUP")
           echo '${{ steps.inspect.outputs.json }}' | jq | toGroup
