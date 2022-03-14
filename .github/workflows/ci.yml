@@ -86,11 +86,7 @@ jobs:
             }
         run: |
           echo "::group::Contexts"
-          echo "$STEP_CONTEXTS" | jq -r '
-            del(.github.token) | del(.github.event) |
-            [ paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} ] | from_entries |
-            to_entries[] | "\(.key): \(.value|@json)"
-          ' \
+          echo "$STEP_CONTEXTS"
           echo "::endgroup::"
           
       - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }} ${{ github.ref_type }} ${{ github.ref_name }}
