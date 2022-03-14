@@ -88,6 +88,11 @@ jobs:
         continue-on-error: true
         run: |
           source <(echo "$WF_RUN_SETUP")
+          
+          flattenJson <<"__EOF__"
+          {"github":${{ toJson(github) }}}
+          __EOF__
+          
           jq -Mcr 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'context github (without github.event)' <<__EOF__
               {"github":${{ toJson(github) }}}
           __EOF__
