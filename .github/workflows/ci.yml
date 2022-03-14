@@ -62,10 +62,10 @@ jobs:
     
       - name: test
         run: |
-          echo '::debug::DEBUG'
-          echo '::notice::NOTICE'
-          echo '::warning::WARNING'
-          echo '::error::ERROR'
+          echo '::debug title=TITLE::DEBUG'
+          echo '::notice title=TITLE::NOTICE'
+          echo '::warning title=TITLE::WARNING'
+          echo '::error title=TITLE::ERROR'
         
       - name: Show flattened contexts
         if: true # Set false to turn off
