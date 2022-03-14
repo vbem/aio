@@ -53,7 +53,6 @@ jobs:
       meta-json:      ${{ steps.meta.outputs.json }}
       build-digest:   ${{ steps.build.outputs.digest }}
       build-metadata: ${{ steps.build.outputs.metadata }}
-      inspect-json:   ${{ steps.inspect.outputs.json }}
 
     steps:
     
@@ -68,8 +67,6 @@ jobs:
           echo '::error title=TITLE::ERROR'
         
       - name: Show flattened contexts
-        id: flatten
-        if: true # Set false to turn off
         continue-on-error: true
         env:
           STEP_CONTEXTS: |
@@ -126,21 +123,13 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
       
       - name: Inspect image -> ${{ env.STEP_IMG }}
-        id: inspect
-        if: true # Set false to turn off
         continue-on-error: true
         env:
           STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
-          echo "::set-output name=json::$(docker image inspect ${{ env.STEP_IMG }})"
-          
           echo "::group::history"
           docker image history ${{ env.STEP_IMG }}
           echo "::endgroup::"
-          
           echo "::group::inspect"
           docker image inspect ${{ env.STEP_IMG }}
           echo "::endgroup::"
-          
-      - run: |
-          echo ${{ steps.inspect.outputs.json }}
