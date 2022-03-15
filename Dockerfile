@@ -134,6 +134,7 @@ RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/
 && aliyun > out && head -n1 out \
 \
 && log "Passed all test cases!" \
+&& log "set" && set && log 'env' && env \
 && touch /tested
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 FROM fresh AS output 
