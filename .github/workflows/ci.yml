@@ -88,9 +88,7 @@ jobs:
       inspect-json:   ${{ steps.inspect.outputs.json }}
 
     steps:
-    
-      # https://github.com/marketplace/actions/checkout
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
       
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
         continue-on-error: true
@@ -103,7 +101,7 @@ jobs:
           echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | flattenJson | toGroup 'github.event'
           echo {'"runner"':"$STEP_CTX_RUNNER"} | flattenJson | toGroup 'runner'
           
-      - name: Generate docker-metadata from GitHub events and Git reference -> ${{ github.event_name }}@${{ github.ref }}
+      - name: Extract metadata from Git reference and GitHub events -> ${{ github.ref }}@${{ github.event_name }}
         id: meta
         uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
         with:
@@ -149,16 +147,12 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       
-      - name: Inspect image -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
+      - name: Inspect image -> ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         id: inspect
         continue-on-error: true
         run: |
           ${{ env.WF_RUN_SETUP }}
           docker image history ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | toGroup 'history'
-          docker image inspect ${{ join(fromJSON(steps.meta.outputs.json).tags, ' ') }} | flattenJson | toGroup 'inspect'
-          docker image inspect ${{ join(fromJSON(steps.meta.outputs.json).tags, ' ') }} | jq -Mcr | toOutput 'json'
+          docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | flattenJson | toGroup 'inspect'
+          docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | jq -Mcr '.[]' | toOutput 'json'
           
-      - run: |
-          jq <<'__EOF__'
-          ${{ steps.inspect.outputs.json }}
-          __EOF__
