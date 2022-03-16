@@ -160,10 +160,3 @@ jobs:
           docker image inspect ${{ env.STEP_IMG }} | flattenJson | toGroup 'inspect'
           docker image inspect ${{ env.STEP_IMG }} | jq -Mcr | toOutput 'json'
           
-      - run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker pull alpine:3.15
-          docker tag alpine:3.15 ghcr.io/vbem/alpine:3.15
-          docker push ghcr.io/vbem/alpine:3.15
-          
-      
