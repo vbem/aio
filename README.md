@@ -8,7 +8,7 @@
 [![docker-hub pulls](https://img.shields.io/docker/pulls/vbem/aio?label=docker-hub%20pulls)](https://hub.docker.com/r/vbem/aio)
 
 <p align="center">
-  <a href="https://hub.docker.com/r/vbem/aio"><img src="https://repository-images.githubusercontent.com/372759229/b03c199c-cead-465b-a2b9-a3f28ad4de0a"></a>
+  <a href="https://github.com/vbem/aio"><img src="https://repository-images.githubusercontent.com/372759229/b03c199c-cead-465b-a2b9-a3f28ad4de0a"></a>
 </p>
 
 ## What
