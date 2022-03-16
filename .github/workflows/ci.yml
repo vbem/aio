@@ -149,14 +149,15 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       
-      - name: Inspect image -> ${{ env.STEP_IMG }}
+      - name: Inspect image -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
         id: inspect
         continue-on-error: true
-        env:
-          STEP_IMG: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
-          ${{ env.WF_RUN_SETUP }}
-          docker image history ${{ env.STEP_IMG }} | toGroup 'history'
-          docker image inspect ${{ env.STEP_IMG }} | flattenJson | toGroup 'inspect'
-          docker image inspect ${{ env.STEP_IMG }} | jq -Mcr | toOutput 'json'
+          docker image history ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | toGroup 'history'
+          docker image inspect ${{ join(fromJSON(steps.meta.outputs.json).tags, ' ') }} | flattenJson | toGroup 'inspect'
+          docker image inspect ${{ join(fromJSON(steps.meta.outputs.json).tags, ' ') }} | jq -Mcr | toOutput 'json'
           
+      - run: |
+          jq <<'__EOF__'
+          ${{ steps.inspect.outputs.json }}
+          __EOF__
