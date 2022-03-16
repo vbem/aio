@@ -153,6 +153,7 @@ jobs:
         id: inspect
         continue-on-error: true
         run: |
+          ${{ env.WF_RUN_SETUP }}
           docker image history ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | toGroup 'history'
           docker image inspect ${{ join(fromJSON(steps.meta.outputs.json).tags, ' ') }} | flattenJson | toGroup 'inspect'
           docker image inspect ${{ join(fromJSON(steps.meta.outputs.json).tags, ' ') }} | jq -Mcr | toOutput 'json'
