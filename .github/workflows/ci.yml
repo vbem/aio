@@ -23,6 +23,7 @@ env:
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
+  WF_IS_ARTIFACT: true
   TZ:             Asia/Shanghai
   WF_RUN_SETUP:   |
     # Group stdin to stdout with title
@@ -159,26 +160,20 @@ jobs:
         env:
           STEP_NAME:    ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           STEP_INSPECT: ${{ runner.temp }}/inspect.json
+          STEP_SAVE:  ${{ runner.temp }}/image.tar.gz
         run: |
           ${{ env.WF_RUN_SETUP }}
-          cat ${{ steps.meta.outputs.bake_file }}
           docker image history ${{ env.STEP_NAME }} | toGroup 'history'
           docker image inspect ${{ env.STEP_NAME }} | jq -Mcr '.[]' | tee ${{ env.STEP_INSPECT }} | flattenJson | toGroup 'inspect'
           toOutput 'inspect' < ${{ env.STEP_INSPECT }}
+          if [ "${{ env.WF_IS_ARTIFACT }}" == "true" ]; then
+            echo '::notice::Save local image -> ${{ env.STEP_SAVE }} ...'
+            time docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }}
+            ls -al ${{ env.STEP_SAVE }}
+            toOutput 'save' <<< "${{ env.STEP_SAVE }}"
+          fi
           
-      - name: Save local image -> ${{ env.STEP_SAVE }}
-        id: save
-        env:
-          STEP_NAME:    ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          STEP_SAVE:    ${{ runner.temp }}/image.tar.gz
-        run: |
-          echo '::notice::Generating ${{ env.STEP_SAVE }} ...'
-          #docker image save ${{ env.STEP_NAME }} | xz -vT 0 > ${{ env.STEP_SAVE }}
-          time docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }}-gz
-          time docker image save ${{ env.STEP_NAME }} | bzip2 -v > ${{ env.STEP_SAVE }}-bz
-          time docker image save ${{ env.STEP_NAME }} | xz -vT 0 > ${{ env.STEP_SAVE }}-xz
-          ls -al ${{ env.STEP_SAVE }}
-          toOutput 'save' <<< "${{ env.STEP_SAVE }}"
-
-
-
+      - uses: actions/upload-artifact@v3 # https://github.com/marketplace/actions/upload-a-build-artifact
+        with:
+          path: ${{ steps.dig.outputs.save }}
+          
