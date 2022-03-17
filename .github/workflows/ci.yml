@@ -171,7 +171,7 @@ jobs:
             time docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }}
             ls -al ${{ env.STEP_SAVE }}
             toOutput 'save' <<< ${{ env.STEP_SAVE }}
-          }
+          fi
 
       - if: env.WF_IS_ARTIFACT == 'true'
         uses: actions/upload-artifact@v3 # https://github.com/marketplace/actions/upload-a-build-artifact
