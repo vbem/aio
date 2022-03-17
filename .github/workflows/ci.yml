@@ -154,20 +154,21 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Dig local image -> ${{ env.STEP_IMG_NAME }}
+      - name: Dig local image -> ${{ env.STEP_NAME }}
         id: dig
         env:
-          STEP_IMG_NAME: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          STEP_IMG_SAVE: ${{ runner.tmp }}/image.tar.xz
+          STEP_NAME:    ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          STEP_SAVE:    ${{ runner.temp }}/image.tar.xz
+          STEP_INSPECT: ${{ runner.temp }}/inspect.json
         run: |
           ${{ env.WF_RUN_SETUP }}
-          docker image history ${{ env.STEP_IMG_NAME }} | toGroup 'history'
-          docker image inspect ${{ env.STEP_IMG_NAME }} | jq -Mcr '.[]' | tee ${{ runner.tmp }}/inspect.json | flattenJson | toGroup 'inspect'
-          toOutput 'inspect' < ${{ runner.tmp }}/inspect.json
-          echo '::notice::Generating ${{ env.STEP_IMG_SAVE }} ...'
-          docker image save ${{ env.STEP_IMG_NAME }} | xz -vT 0 > ${{ env.STEP_IMG_SAVE }}
-          toOutput 'save' <<< "${{ env.STEP_IMG_SAVE }}"
-          ls -al ${{ env.STEP_IMG_SAVE }}
+          docker image history ${{ env.STEP_NAME }} | toGroup 'history'
+          docker image inspect ${{ env.STEP_NAME }} | jq -Mcr '.[]' | tee ${{ env.STEP_INSPECT }} | flattenJson | toGroup 'inspect'
+          toOutput 'inspect' < ${{ env.STEP_INSPECT }}
+          echo '::notice::Generating ${{ env.STEP_SAVE }} ...'
+          docker image save ${{ env.STEP_NAME }} | xz -vT 0 > ${{ env.STEP_SAVE }}
+          toOutput 'save' <<< "${{ env.STEP_SAVE }}"
+          ls -al ${{ env.STEP_SAVE }}
 
 
 
