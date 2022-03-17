@@ -23,6 +23,7 @@ env:
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
+  WF_IS_ARTIFACT: true
   TZ:             Asia/Shanghai
   WF_RUN_SETUP:   |
     # Group stdin to stdout with title
@@ -96,6 +97,8 @@ jobs:
       inspect-json:   ${{ steps.inspect.outputs.json }}
 
     steps:
+      - run: |
+          pwd && ls -al
       - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
       
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
@@ -164,3 +167,7 @@ jobs:
           docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | flattenJson | toGroup 'inspect'
           docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | jq -Mcr '.[]' | toOutput 'json'
           
+      - run: |
+          pwd && ls -al
+          
+      
