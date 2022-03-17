@@ -174,9 +174,9 @@ jobs:
         run: |
           echo '::notice::Generating ${{ env.STEP_SAVE }} ...'
           #docker image save ${{ env.STEP_NAME }} | xz -vT 0 > ${{ env.STEP_SAVE }}
-          docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }}-gz
-          docker image save ${{ env.STEP_NAME }} | bzip2 -v > ${{ env.STEP_SAVE }}-bz
-          docker image save ${{ env.STEP_NAME }} | xz -vT 0 > ${{ env.STEP_SAVE }}-xz
+          time docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }}-gz
+          time docker image save ${{ env.STEP_NAME }} | bzip2 -v > ${{ env.STEP_SAVE }}-bz
+          time docker image save ${{ env.STEP_NAME }} | xz -vT 0 > ${{ env.STEP_SAVE }}-xz
           ls -al ${{ env.STEP_SAVE }}
           toOutput 'save' <<< "${{ env.STEP_SAVE }}"
 
