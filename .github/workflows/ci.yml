@@ -163,17 +163,18 @@ jobs:
           STEP_SAVE:    ${{ runner.temp }}/image.tar.gz
         run: |
           ${{ env.WF_RUN_SETUP }}
-          for each in '${{ steps.meta.outputs.tags }}'; do
-            echo "::notice::image -> $each"
-          done
-          echo "::notice::push to remote -> ${{ env.WF_IS_PUSH }}"
           docker image history ${{ env.STEP_NAME }} | toGroup 'history'
           docker image inspect ${{ env.STEP_NAME }} | jq -Mcr '.[]' | tee ${{ env.STEP_INSPECT }} | flattenJson | toGroup 'inspect'
           toOutput 'inspect' < ${{ env.STEP_INSPECT }}
+          for each in ${{ steps.meta.outputs.tags }}; do
+            echo "::notice::image -> $each"
+          done
+          echo "::notice::push to remote -> ${{ env.WF_IS_PUSH }}"
           [ "${{ env.WF_IS_ARTIFACT }}" == "true" ] && {
             time docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }};
             ls -al ${{ env.STEP_SAVE }};
           } | toGroup 'save'
+          toOutput 'save' <<< ${{ env.STEP_SAVE }}
           
       - if: env.WF_IS_ARTIFACT == 'true'
         uses: actions/upload-artifact@v3 # https://github.com/marketplace/actions/upload-a-build-artifact
