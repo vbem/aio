@@ -158,17 +158,27 @@ jobs:
         id: dig
         env:
           STEP_NAME:    ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          STEP_SAVE:    ${{ runner.temp }}/image.tar.xz
           STEP_INSPECT: ${{ runner.temp }}/inspect.json
         run: |
           ${{ env.WF_RUN_SETUP }}
+          cat ${{ steps.meta.outputs.bake_file }}
           docker image history ${{ env.STEP_NAME }} | toGroup 'history'
           docker image inspect ${{ env.STEP_NAME }} | jq -Mcr '.[]' | tee ${{ env.STEP_INSPECT }} | flattenJson | toGroup 'inspect'
           toOutput 'inspect' < ${{ env.STEP_INSPECT }}
+          
+      - name: Save local image -> ${{ env.STEP_SAVE }}
+        id: save
+        env:
+          STEP_NAME:    ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          STEP_SAVE:    ${{ runner.temp }}/image.tar.gz
+        run: |
           echo '::notice::Generating ${{ env.STEP_SAVE }} ...'
-          docker image save ${{ env.STEP_NAME }} | xz -vT 0 > ${{ env.STEP_SAVE }}
-          toOutput 'save' <<< "${{ env.STEP_SAVE }}"
+          #docker image save ${{ env.STEP_NAME }} | xz -vT 0 > ${{ env.STEP_SAVE }}
+          docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }}-gz
+          docker image save ${{ env.STEP_NAME }} | bzip2 -v > ${{ env.STEP_SAVE }}-bz
+          docker image save ${{ env.STEP_NAME }} | xz -vT 0 > ${{ env.STEP_SAVE }}-xz
           ls -al ${{ env.STEP_SAVE }}
+          toOutput 'save' <<< "${{ env.STEP_SAVE }}"
 
 
 
