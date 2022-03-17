@@ -166,10 +166,7 @@ jobs:
           docker image history ${{ env.STEP_NAME }} | toGroup 'history'
           docker image inspect ${{ env.STEP_NAME }} | jq -Mcr '.[]' | tee ${{ env.STEP_INSPECT }} | flattenJson | toGroup 'inspect'
           toOutput 'inspect' < ${{ env.STEP_INSPECT }}
-          for each in ${{ steps.meta.outputs.tags }}; do
-            echo "::notice::image -> $each"
-          done
-          echo "::notice::push to remote -> ${{ env.WF_IS_PUSH }}"
+          
           [ "${{ env.WF_IS_ARTIFACT }}" == "true" ] && {
             time docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }};
             ls -al ${{ env.STEP_SAVE }};
