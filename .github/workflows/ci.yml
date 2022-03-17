@@ -23,7 +23,6 @@ env:
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
-  WF_IS_ARTIFACT: true
   TZ:             Asia/Shanghai
   WF_RUN_SETUP:   |
     # Group stdin to stdout with title
@@ -94,13 +93,12 @@ jobs:
       meta-json:      ${{ steps.meta.outputs.json }}
       build-digest:   ${{ steps.build.outputs.digest }}
       build-metadata: ${{ steps.build.outputs.metadata }}
-      inspect-json:   ${{ steps.inspect.outputs.json }}
+      inspect:        ${{ steps.dig.outputs.json }}
 
     steps:
       - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
 
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
-        continue-on-error: true
         env:
           STEP_CTX_GITHUB:  ${{ toJson(github) }}
           STEP_CTX_RUNNER:  ${{ toJson(runner) }}
@@ -155,19 +153,21 @@ jobs:
           push: ${{ env.WF_IS_PUSH }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: |
-            type=tar,dest=${{ runner.temp }}/image.tar
 
-      - name: Inspect image -> ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-        id: inspect
-        continue-on-error: true
+      - name: Dig local image -> ${{ env.STEP_IMG_NAME }}
+        id: dig
+        env:
+          STEP_IMG_NAME: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          STEP_IMG_SAVE: ${{ runner.tmp }}/image.tar.xz
         run: |
           ${{ env.WF_RUN_SETUP }}
-          docker image history ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | toGroup 'history'
-          docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | flattenJson | toGroup 'inspect'
-          docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | jq -Mcr '.[]' | toOutput 'json'
+          docker image history ${{ env.STEP_IMG_NAME }} | toGroup 'history'
+          docker image inspect ${{ env.STEP_IMG_NAME }} | jq -Mcr '.[]' | tee ${{ runner.tmp }}/inspect.json | flattenJson | toGroup 'inspect'
+          toOutput 'inspect' < ${{ runner.tmp }}/inspect.json
+          echo '::notice::Generating ${{ env.STEP_IMG_SAVE }} ...'
+          docker image save ${{ env.STEP_IMG_NAME }} | xz -vT 0 > ${{ env.STEP_IMG_SAVE }}
+          toOutput 'save' <<< "${{ env.STEP_IMG_SAVE }}"
+          ls -al ${{ env.STEP_IMG_SAVE }}
 
-      - run: |
-          ls -al ${{ runner.temp }}
 
 
