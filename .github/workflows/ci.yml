@@ -23,7 +23,7 @@ env:
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
-  WF_IS_ARTIFACT: true
+  WF_IS_ARTIFACT: false
   TZ:             Asia/Shanghai
   WF_RUN_SETUP:   |
     # Group stdin to stdout with title
