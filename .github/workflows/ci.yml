@@ -175,7 +175,7 @@ jobs:
             ls -al ${{ env.STEP_SAVE }};
           } | toGroup 'save'
           
-      - if: env.WF_IS_ARTIFACT == "true"
+      - if: env.WF_IS_ARTIFACT == 'true'
         uses: actions/upload-artifact@v3 # https://github.com/marketplace/actions/upload-a-build-artifact
         with:
           if-no-files-found: error
