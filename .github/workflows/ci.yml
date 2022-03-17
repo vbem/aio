@@ -19,7 +19,7 @@ env:
   WF_CR_USER:     ${{ github.repository_owner }}
   WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
   WF_CR_REPO:     ${{ github.repository }}
-  
+
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
@@ -32,7 +32,7 @@ env:
     function toGroup {
       echo "::group::$1"; cat; echo "::endgroup::"
     }
-    
+
     # Set stdin as value to environment with given name
     # $1: environment variable name
     # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
@@ -41,7 +41,7 @@ env:
       cat >> $GITHUB_ENV
       echo "__HEREDOC__" >> $GITHUB_ENV
     }
-    
+
     # Set stdin as value to output of current step with given name
     # $1: output name
     # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
@@ -51,7 +51,7 @@ env:
       echo "::set-output name=$1::$val"
       echo "$val" | toGroup "set-output -> $1"
     }
-    
+
     # Flatten JSON to key-value lines
     #   $1: separator (default as ' -> ')
     function flattenJson {
@@ -86,7 +86,7 @@ on:
 jobs:
   CI:
     runs-on: ubuntu-latest
-    
+
     outputs:
       meta-version:   ${{ steps.meta.outputs.version }}
       meta-tags:      ${{ steps.meta.outputs.tags }}
@@ -97,10 +97,8 @@ jobs:
       inspect-json:   ${{ steps.inspect.outputs.json }}
 
     steps:
-      - run: |
-          pwd && ls -al
       - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
-      
+
       - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
         continue-on-error: true
         env:
@@ -111,7 +109,7 @@ jobs:
           echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'github without event'
           echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | flattenJson | toGroup 'github.event'
           echo {'"runner"':"$STEP_CTX_RUNNER"} | flattenJson | toGroup 'runner'
-          
+
       - name: Extract metadata from Git reference and GitHub events -> ${{ github.ref }}@${{ github.event_name }}
         id: meta
         uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
@@ -124,11 +122,11 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
-            type=raw,value=0.${{ github.run_number }}.${{ github.run_attempt }}-time.{{date 'YYYYMMDDHHmmssz'}}.sha.{{sha}},enable=${{ env.WF_IS_TAG_GEN }}  
+            type=raw,value=0.${{ github.run_number }}.${{ github.run_attempt }}-time.{{date 'YYYYMMDDHHmmssz'}}.sha.{{sha}},enable=${{ env.WF_IS_TAG_GEN }}
           # https://github.com/opencontainers/image-spec/blob/master/annotations.md
           labels: |
             org.opencontainers.image.vendor=${{ github.repository_owner }}
-            
+
       - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
         if: env.WF_IS_PUSH == 'true'
         uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
@@ -136,7 +134,7 @@ jobs:
           registry: ${{ env.WF_CR_HOST }}
           username: ${{ env.WF_CR_USER }}
           password: ${{ env.WF_CR_TOKEN }}
-          
+
       - name: Login remote container registry -> ${{ github.actor }}@ghcr.io
         if: env.WF_IS_PUSH == 'true'
         uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
@@ -144,11 +142,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - uses: docker/setup-buildx-action@v1 # https://github.com/marketplace/actions/docker-setup-buildx
         with:
           driver: docker # https://github.com/docker/setup-buildx-action/issues/55
-          
+
       - name: Build image with push=${{ env.WF_IS_PUSH }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
         id: build
         uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
@@ -157,7 +155,9 @@ jobs:
           push: ${{ env.WF_IS_PUSH }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      
+          outputs: |
+            type=tar,dest=${{ runner.temp }}/image.tar
+
       - name: Inspect image -> ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         id: inspect
         continue-on-error: true
@@ -166,8 +166,8 @@ jobs:
           docker image history ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | toGroup 'history'
           docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | flattenJson | toGroup 'inspect'
           docker image inspect ${{ fromJSON(steps.meta.outputs.json).tags[0] }} | jq -Mcr '.[]' | toOutput 'json'
-          
+
       - run: |
-          pwd && ls -al
-          
-      
+          ls -al ${{ runner.temp }}
+
+
