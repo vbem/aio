@@ -13,7 +13,7 @@
 
 ## What
 A generic DevOps all-in-one image pre-installed with many tools.
-- Alpine latest stable version based
+- [Alpine](https://alpinelinux.org/) latest stable version based
 - `tzdata` added and `Asia/Shanghai` as default time-zone. You can change this by setting `TZ` env var at runtime
 - Replaced `ash` to `bash` as default shell
 - `$PS1` optimized
