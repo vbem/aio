@@ -23,7 +23,7 @@ env:
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
-  WF_IS_ARTIFACT: true
+  WF_IS_ARTIFACT: false
   TZ:             Asia/Shanghai
   WF_RUN_SETUP:   |
     # Group stdin to stdout with title
@@ -166,18 +166,16 @@ jobs:
           docker image history ${{ env.STEP_NAME }} | toGroup 'history'
           docker image inspect ${{ env.STEP_NAME }} | jq -Mcr '.[]' | tee ${{ env.STEP_INSPECT }} | flattenJson | toGroup 'inspect'
           toOutput 'inspect' < ${{ env.STEP_INSPECT }}
-          
+
           [ "${{ env.WF_IS_ARTIFACT }}" == "true" ] && {
             time docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }};
             ls -al ${{ env.STEP_SAVE }};
           } | toGroup 'save'
           toOutput 'save' <<< ${{ env.STEP_SAVE }}
-          
+
       - if: env.WF_IS_ARTIFACT == 'true'
         uses: actions/upload-artifact@v3 # https://github.com/marketplace/actions/upload-a-build-artifact
         with:
           if-no-files-found: error
           path: |
             ${{ steps.dig.outputs.save }}
-            
-          
