@@ -1,7 +1,17 @@
 name: Continuous Integration
-# on push tag event -> semver will be build and push to remote, latest tag included if a stable semver
-# on push branch event -> generated tag with time and SHA, no push
-# on `workflow_dispatch` event -> generated tag with time and SHA if no input, push depends on input
+# For push tag event:
+# - If Git tag observe semver, image with this tag will be built
+# - If Git tag is a stable semver, image with latest tag will also be built
+# - Images will be pushed to remote
+# For push branch event:
+# - A generated tag with time and SHA will be built
+# - Images will not be pushed to remote
+# For `workflow_dispatch` event:
+# - If image tag is not specified in inputs, A generated tag with time and SHA will be built
+# - Whether push or not depends on inputs
+#
+# - To disable this workflow: https://docs.github.com/en/actions/managing-workflow-runs/disabling-and-enabling-a-workflow
+# - To skip this workflow: https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs
 
 env:
   # only change these
@@ -53,16 +63,14 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    # If you define neither tags(-ignore) nor branches(-ignore), the workflow will run for either branches or tags.
+  push: # If you define neither tags(-ignore) nor branches(-ignore), the workflow will run for either branches or tags.
     paths:
       - 'Dockerfile'
       - '.dockerignore'
       - 'src/**'
       - '.github/workflows/ci.yml'
   workflow_dispatch:
-    inputs:
-      # https://docs.github.com/actions/using-workflows/triggering-a-workflow#defining-inputs-for-manually-triggered-workflows
+    inputs: # https://docs.github.com/actions/using-workflows/triggering-a-workflow#defining-inputs-for-manually-triggered-workflows
       img-tag:
         description: Image tag (https://semver.org/, e.g. `v1.2.3-beta.45`), blank to generate a tag with time and SHA
         type: string
