@@ -1,12 +1,13 @@
 ---
 name: DockerHub Description
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - README.md
-      - .github/workflows/dockerhub-desc.yml
+  workflow_dispatch:
+  #push:
+  #  branches:
+  #    - main
+  #  paths:
+  #    - README.md
+  #    - .github/workflows/dockerhub-desc.yml
 jobs:
   update:
     runs-on: ubuntu-latest
