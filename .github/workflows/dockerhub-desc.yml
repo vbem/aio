@@ -11,12 +11,12 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: peter-evans/dockerhub-description@v2 # https://github.com/marketplace/actions/docker-hub-description
-      with:
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-        short-description: ${{ github.event.repository.description }}
-        #repository: ${{ github.repository }}
-        #readme-filepath: ./README.md
+      - uses: actions/checkout@v3
+      - uses: peter-evans/dockerhub-description@v2 # https://github.com/marketplace/actions/docker-hub-description
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          short-description: ${{ github.event.repository.description }}
+          #repository: ${{ github.repository }}
+          #readme-filepath: ./README.md
 ...
