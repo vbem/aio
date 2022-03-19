@@ -1,3 +1,4 @@
+---
 name: Super Linter
 
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-only-cancel-in-progress-jobs-or-runs-for-the-current-workflow
@@ -14,16 +15,13 @@ jobs:
   linter:
     runs-on: ubuntu-latest
     steps:
-      # https://github.com/marketplace/actions/checkout
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
         with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
-          fetch-depth: 0
-
-      # https://github.com/marketplace/actions/super-linter
-      - uses: github/super-linter@v4
+          fetch-depth: 0 # Full git history is needed to get a proper list of changed files within `super-linter`
+      - uses: github/super-linter@v4 # https://github.com/marketplace/actions/super-linter
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_GITHUB_ACTIONS: false # https://github.com/rhysd/actionlint/blob/main/docs/usage.md#super-linter
           HADOLINT_FAILURE_THRESHOLD: error # https://github.com/hadolint/hadolint#configure
+...
