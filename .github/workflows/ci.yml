@@ -1,3 +1,4 @@
+---
 name: Continuous Integration
 # For push tag event:
 # - If Git tag observe semver, image with this tag will be built
@@ -179,3 +180,4 @@ jobs:
           if-no-files-found: error
           path: |
             ${{ steps.dig.outputs.save }}
+...
