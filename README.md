@@ -1,6 +1,6 @@
 # AIO
 [![Continuous Integration](https://github.com/vbem/aio/actions/workflows/ci.yml/badge.svg)](https://github.com/vbem/aio/actions/workflows/ci.yml)
-[![GitHub Super-Linter](https://github.com/vbem/aio/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/vbem/aio/actions/workflows/linter.yml)
+[![Super Linter](https://github.com/vbem/aio/actions/workflows/linter.yml/badge.svg)](https://github.com/vbem/aio/actions/workflows/linter.yml)
 [![GitHub issues](https://img.shields.io/github/issues/vbem/aio)](https://github.com/vbem/aio/issues)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/vbem/aio)](https://github.com/vbem/aio/graphs/commit-activity)
 [![GitHub last commit](https://img.shields.io/github/last-commit/vbem/aio)](https://github.com/vbem/aio/graphs/commit-activity)
