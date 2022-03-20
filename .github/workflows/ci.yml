@@ -15,11 +15,17 @@ name: Continuous Integration
 # - To skip this workflow: https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs
 
 env:
-  # only change these
+  # only change these for container registry
   WF_CR_HOST:     docker.io
   WF_CR_USER:     ${{ github.repository_owner }}
   WF_CR_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
   WF_CR_REPO:     ${{ github.repository }}
+
+  # only change these for GitHub Packages container registry
+  WF_GHCR_HOST:   ghcr.io
+  WF_GHCR_USER:   ${{ github.actor }}
+  WF_GHCR_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
+  WF_GHCR_REPO:   ${{ github.repository }}
 
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
@@ -116,7 +122,7 @@ jobs:
         with:
           images: |
             ${{ env.WF_CR_HOST }}/${{ env.WF_CR_REPO }}
-            ghcr.io/${{ github.repository }}
+            ${{ env.WF_GHCR_HOST }}/${{ env.WF_GHCR_REPO }}
           # https://semver.org/
           # https://momentjs.com/docs/#/displaying/format/
           tags: |
@@ -135,13 +141,13 @@ jobs:
           username: ${{ env.WF_CR_USER }}
           password: ${{ env.WF_CR_TOKEN }}
 
-      - name: Login remote container registry -> ${{ github.actor }}@ghcr.io
+      - name: Login remote container registry -> ${{ env.WF_GHCR_USER }}@${{ env.WF_GHCR_HOST }}
         if: env.WF_IS_PUSH == 'true'
         uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ env.WF_GHCR_HOST }}
+          username: ${{ env.WF_GHCR_USER }}
+          password: ${{ env.WF_GHCR_TOKEN }}
 
       - uses: docker/setup-buildx-action@v1 # https://github.com/marketplace/actions/docker-setup-buildx
         with:
