@@ -63,12 +63,6 @@ env:
       jq -Mcr --arg sep "${1:- 👈 }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($sep)\(.value|@json)"'
     }
 
-    # Flatten JSON to key-value lines
-    #   $1: separator (default as ' -> ')
-    function flattenJson {
-      jq -Mcr --arg sep "${1:- -> }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($sep)\(.value|@json)"'
-    }
-
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-only-cancel-in-progress-jobs-or-runs-for-the-current-workflow
 concurrency:
   group: ${{ github.workflow }}@${{ github.ref }}
