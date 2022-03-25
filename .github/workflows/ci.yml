@@ -32,14 +32,14 @@ env:
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
   WF_IS_ARTIFACT: false
   TZ:             Asia/Shanghai
-  WF_RUN_SETUP:   |
+  WF_RUN_SETUP: |
+    # common functions
     # Group stdin to stdout with title
     # $1: group tile
     # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
     function toGroup {
-      echo "::group::$1"; cat; echo "::endgroup::"
+      echo "::group::💬 $1"; cat; echo "::endgroup::"
     }
-
     # Set stdin as value to environment with given name
     # $1: environment variable name
     # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
@@ -48,7 +48,6 @@ env:
       cat >> $GITHUB_ENV
       echo "__HEREDOC__" >> $GITHUB_ENV
     }
-
     # Set stdin as value to output of current step with given name
     # $1: output name
     # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
@@ -57,6 +56,11 @@ env:
       val="$(< /dev/stdin)"
       echo "::set-output name=$1::$val"
       echo "$val" | toGroup "set-output -> $1"
+    }
+    # Flatten JSON to key-value lines
+    #   $1: separator (default as ' 👈 ')
+    function flattenJson {
+      jq -Mcr --arg sep "${1:- 👈 }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($sep)\(.value|@json)"'
     }
 
     # Flatten JSON to key-value lines
