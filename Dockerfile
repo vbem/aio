@@ -70,8 +70,11 @@ CMD ["/bin/bash"]
 FROM fresh AS tester
 RUN function log { echo -e "\e[7;36m$(date +%F_%T)\e[0m\e[1;96m $*\e[0m" > /dev/stderr ; } \
 \
+&& log "Test os-release" \
+&& cat /etc/os-release \
+\
 && log "Test APK repositories" \
-&& cat /etc/apk/repositories\
+&& cat /etc/apk/repositories \
 \
 && log "Test timezone" \
 && readlink -vf /etc/localtime \
