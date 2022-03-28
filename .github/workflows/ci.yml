@@ -132,7 +132,6 @@ jobs:
             org.opencontainers.image.vendor=${{ github.repository_owner }}
 
       - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
-        if: env.WF_IS_PUSH == 'true'
         uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
         with:
           registry: ${{ env.WF_CR_HOST }}
@@ -140,7 +139,6 @@ jobs:
           password: ${{ env.WF_CR_TOKEN }}
 
       - name: Login remote container registry -> ${{ env.WF_GHCR_USER }}@${{ env.WF_GHCR_HOST }}
-        if: env.WF_IS_PUSH == 'true'
         uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
         with:
           registry: ${{ env.WF_GHCR_HOST }}
@@ -156,6 +154,7 @@ jobs:
         uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
         with:
           context: .
+          pull: true
           push: ${{ env.WF_IS_PUSH }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
