@@ -73,11 +73,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
-      
+
       - name: Load kit script
         id: kit
         uses: ./.github/actions/kit
-        
+
       - name: Extract metadata from Git reference and GitHub events -> ${{ github.ref }}@${{ github.event_name }}
         id: meta
         uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
