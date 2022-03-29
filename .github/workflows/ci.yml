@@ -110,7 +110,7 @@ jobs:
         
       - run: |
           source ${{ steps.bl.outputs.path }}
-          echo 哈哈 | bl:wf::group 呵呵
+          echo 哈哈 | bl::wf::group 呵呵
       
       
 
