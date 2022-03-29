@@ -13,28 +13,23 @@ inputs: {}
 outputs:
   path:
     description: Path to the kit script
-    value: ${{ steps.gen.outputs.path }}
+    value: ${{ steps.main.outputs.path }}
 
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#runs-for-composite-actions
 runs:
   using: composite
   steps:
-    - name: Generate path to the kit script
-      id: gen
+    - id: main
       env:
         STEP_PATH: ${{ github.action_path }}/kit.bash
-      shell: bash
-      run: |
-        source ${{ env.STEP_PATH }}
-        echo -n "${{ env.STEP_PATH }}" | kit::wf::output path
-        
-    - name: Show workflow contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
-      env:
         STEP_CTX_GITHUB:  ${{ toJson(github) }}
         STEP_CTX_RUNNER:  ${{ toJson(runner) }}
       shell: bash
       run: |
-        source ${{ steps.gen.outputs.path }}
+        # Load kit script
+        source ${{ env.STEP_PATH }}
+        echo -n "${{ env.STEP_PATH }}" | kit::wf::output path
+        # https://docs.github.com/en/actions/learn-github-actions/contexts
         echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | kit::json::flatten | kit::wf::group 'workflow context 👉 github without event'
         echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | kit::json::flatten | kit::wf::group 'workflow context 👉 github.event'
         echo {'"runner"':"$STEP_CTX_RUNNER"} | kit::json::flatten | kit::wf::group 'workflow context 👉 runner'
