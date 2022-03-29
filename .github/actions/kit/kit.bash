@@ -25,7 +25,7 @@ function kit::wf::env {
 # https://renehernandez.io/snippets/multiline-strings-as-a-job-output-in-github-actions/
 function kit::wf::output {
   local val
-  val="$(< /dev/stdin)"
+  val=$(< /dev/stdin)
   echo "::set-output name=$1::$val"
   echo "$val" | kit::wf::group "📜 set-output name=$1"
 }
