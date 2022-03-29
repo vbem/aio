@@ -27,7 +27,7 @@ function kit::wf::output {
   local val
   val="$(< /dev/stdin)"
   echo "::set-output name=$1::$val"
-  echo -n "$val" | kit::wf::group "📜 set-output name=$1"
+  echo "$val" | kit::wf::group "📜 set-output name=$1"
 }
 
 # Flatten JSON to key-value lines
