@@ -60,15 +60,14 @@ runs:
         source ${{ env.STEP_PATH }}
         echo -n "${{ env.STEP_PATH }}" | bl::wf::output path
         
-    - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
+    - name: Show workflow contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
       env:
         STEP_CTX_GITHUB:  ${{ toJson(github) }}
         STEP_CTX_RUNNER:  ${{ toJson(runner) }}
       shell: bash
       run: |
         source ${{ steps.gen.outputs.path }}
-        cat ${{ steps.gen.outputs.path }}
-        echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | bl::json::flatten | bl::wf::group 'github without event'
-        echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | bl::json::flatten | bl::wf::group 'github.event'
-        echo {'"runner"':"$STEP_CTX_RUNNER"} | bl::json::flatten | bl::wf::group 'runner'
+        echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | bl::json::flatten | bl::wf::group 'workflow context 👉 ${{github}}'
+        echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | bl::json::flatten | bl::wf::group 'workflow context 👉 ${{github.event}}'
+        echo {'"runner"':"$STEP_CTX_RUNNER"} | bl::json::flatten | bl::wf::group 'workflow context 👉 ${{runner}}'
 ...
