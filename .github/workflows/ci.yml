@@ -106,7 +106,7 @@ jobs:
       
       ##################################
       - id: kit
-        uses: .github/actions/kit
+        uses: ./.github/actions/kit
         
       - run: |
           source ${{ steps.kit.outputs.path }}
