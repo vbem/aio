@@ -19,12 +19,10 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Generate baseline configurations script
+    - name: Generate path to the kit script
       id: gen
       env:
         STEP_PATH: ${{ github.action_path }}/kit.bash
-        STEP_SCRIPT: |
-          
       shell: bash
       run: |
         source ${{ env.STEP_PATH }}
@@ -37,7 +35,7 @@ runs:
       shell: bash
       run: |
         source ${{ steps.gen.outputs.path }}
-        echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | bl::json::flatten | bl::wf::group 'workflow context 👉 ${{github}}'
-        echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | bl::json::flatten | bl::wf::group 'workflow context 👉 ${{github.event}}'
-        echo {'"runner"':"$STEP_CTX_RUNNER"} | bl::json::flatten | bl::wf::group 'workflow context 👉 ${{runner}}'
+        echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | kit::json::flatten | kit::wf::group 'workflow context 👉 github with event'
+        echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | kit::json::flatten | kit::wf::group 'workflow context 👉 github.event'
+        echo {'"runner"':"$STEP_CTX_RUNNER"} | kit::json::flatten | kit::wf::group 'workflow context 👉 runner'
 ...
