@@ -68,7 +68,7 @@ function kit::json::flatten {
 #   $6: K8S_CONTEXT_NAMESPACE
 function kit::k8s::configSet {
     local name="$1" server="$2" ca_base64="$3" user="$4" token="$5" ctx_ns="$6"
-    kit::log::stderr INFO "🚢 kubectl config set ... for KUBECONFIG='$KUBECONFIG'"
+    kit::log::stderr DEBUG "🚢 kubectl config set ... for KUBECONFIG='$KUBECONFIG'"
     kubectl config set-cluster $name --server=$server
     kubectl config set clusters.$name.certificate-authority-data "$ca_base64"
     kubectl config set-credentials $user --token="$token"
@@ -103,7 +103,7 @@ function kit::k8s::init {
 #   $2: CR_USER
 #   $3: CR_TOKEN
 function kit::k8s::dockerconfigjson {
-    kit::log::stderr INFO "Generating dockerconfigjson for $2@$1"
+    kit::log::stderr DEBUG "Generating dockerconfigjson for $2@$1"
     kubectl create secret docker-registry tmp \
       --dry-run=client -o yaml \
       --docker-server="$1" \
