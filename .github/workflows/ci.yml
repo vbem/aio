@@ -105,11 +105,11 @@ jobs:
       - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
       
       ##################################
-      - id: bl
-        uses: ./.github/actions/baseline
+      - id: kit
+        uses: .github/actions/kit
         
       - run: |
-          source ${{ steps.bl.outputs.path }}
+          source ${{ steps.kit.outputs.path }}
           echo 哈哈 | bl::wf::group 呵呵
       
       
