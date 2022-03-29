@@ -26,7 +26,7 @@ runs:
         STEP_CTX_RUNNER:  ${{ toJson(runner) }}
       shell: bash
       run: |
-        # Load kit script
+        # implementation details
         source ${{ env.STEP_PATH }}
         echo -n "${{ env.STEP_PATH }}" | kit::wf::output path
         # https://docs.github.com/en/actions/learn-github-actions/contexts
