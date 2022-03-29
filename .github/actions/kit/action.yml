@@ -1,7 +1,6 @@
 ---
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
 name: Kit
-author: i@lilei.tech
 description: Prepare kit scrpit for a workflow
 branding:
   icon: 'terminal'
