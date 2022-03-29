@@ -35,7 +35,7 @@ runs:
       shell: bash
       run: |
         source ${{ steps.gen.outputs.path }}
-        echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | kit::json::flatten | kit::wf::group 'workflow context 👉 github with event'
+        echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | kit::json::flatten | kit::wf::group 'workflow context 👉 github without event'
         echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | kit::json::flatten | kit::wf::group 'workflow context 👉 github.event'
         echo {'"runner"':"$STEP_CTX_RUNNER"} | kit::json::flatten | kit::wf::group 'workflow context 👉 runner'
 ...
