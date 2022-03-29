@@ -30,38 +30,8 @@ env:
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
-  WF_IS_ARTIFACT: false
+  WF_IS_ARTIFACT: true
   TZ:             Asia/Shanghai
-  WF_RUN_SETUP: |
-    # common functions
-    # Group stdin to stdout with title
-    # $1: group tile
-    # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
-    function toGroup {
-      echo "::group::💬 $1"; cat; echo "::endgroup::"
-    }
-    # Set stdin as value to environment with given name
-    # $1: environment variable name
-    # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
-    function toEnv {
-      echo "$1<<__HEREDOC__" >> $GITHUB_ENV
-      cat >> $GITHUB_ENV
-      echo "__HEREDOC__" >> $GITHUB_ENV
-    }
-    # Set stdin as value to output of current step with given name
-    # $1: output name
-    # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
-    # https://renehernandez.io/snippets/multiline-strings-as-a-job-output-in-github-actions/
-    function toOutput {
-      val="$(< /dev/stdin)"
-      echo "::set-output name=$1::$val"
-      echo "$val" | toGroup "set-output -> $1"
-    }
-    # Flatten JSON to key-value lines
-    #   $1: separator (default as ' 👈 ')
-    function flattenJson {
-      jq -Mcr --arg sep "${1:- 👈 }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($sep)\(.value|@json)"'
-    }
 
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-only-cancel-in-progress-jobs-or-runs-for-the-current-workflow
 concurrency:
@@ -104,28 +74,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
       
-      ##################################
       - name: Load kit script
         id: kit
         uses: ./.github/actions/kit
         
-      - run: |
-          source ${{ steps.kit.outputs.path }}
-          echo 哈哈 | kit::wf::group 呵呵
-          echo -n "${{ steps.kit.outputs.path }}"
-      
-      
-
-      - name: Show contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
-        env:
-          STEP_CTX_GITHUB:  ${{ toJson(github) }}
-          STEP_CTX_RUNNER:  ${{ toJson(runner) }}
-        run: |
-          ${{ env.WF_RUN_SETUP }}
-          echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | flattenJson | toGroup 'github without event'
-          echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | flattenJson | toGroup 'github.event'
-          echo {'"runner"':"$STEP_CTX_RUNNER"} | flattenJson | toGroup 'runner'
-
       - name: Extract metadata from Git reference and GitHub events -> ${{ github.ref }}@${{ github.event_name }}
         id: meta
         uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
@@ -178,15 +130,16 @@ jobs:
           STEP_INSPECT: ${{ runner.temp }}/inspect.json
           STEP_SAVE:    ${{ runner.temp }}/image.tar.gz
         run: |
-          ${{ env.WF_RUN_SETUP }}
-          docker image history ${{ env.STEP_NAME }} | toGroup 'history'
-          docker image inspect ${{ env.STEP_NAME }} | jq -Mcr '.[]' | tee ${{ env.STEP_INSPECT }} | flattenJson | toGroup 'inspect'
-          toOutput 'inspect' < ${{ env.STEP_INSPECT }}
+          source ${{ steps.kit.outputs.path }}
+          docker image history ${{ env.STEP_NAME }} | kit::wf::group 'history'
+          docker image inspect ${{ env.STEP_NAME }} | jq -Mcre '.[]' > ${{ env.STEP_INSPECT }}
+          kit::json::flatten < ${{ env.STEP_INSPECT }} | kit::wf::group 'inspect'
+          kit::wf::output 'inspect' < ${{ env.STEP_INSPECT }}
 
           if [ "${{ env.WF_IS_ARTIFACT }}" == "true" ]; then
             time docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }}
-            ls -al ${{ env.STEP_SAVE }}
-            toOutput 'save' <<< ${{ env.STEP_SAVE }}
+            ls -ald --full-time ${{ env.STEP_SAVE }}
+            kit::wf::output 'save' <<< ${{ env.STEP_SAVE }}
           fi
 
       - if: env.WF_IS_ARTIFACT == 'true'
