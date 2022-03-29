@@ -109,8 +109,9 @@ jobs:
         uses: ./.github/actions/kit
         
       - run: |
-          source ${{ steps.kit.outputs.path }}
+          source 
           echo 哈哈 | bl::wf::group 呵呵
+          echo -n "${{ steps.kit.outputs.path }}"
       
       
 
