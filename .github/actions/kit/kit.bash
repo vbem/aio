@@ -103,11 +103,11 @@ function kit::k8s::init {
 #   $2: CR_USER
 #   $3: CR_TOKEN
 function kit::k8s::dockerconfigjson {
-    kit::log::stderr DEBUG "Generating dockerconfigjson for $2@$1"
+    kit::log::stderr DEBUG "🔑 Generating dockerconfigjson for $2@$1"
     kubectl create secret docker-registry tmp \
       --dry-run=client -o yaml \
       --docker-server="$1" \
       --docker-username="$2" \
       --docker-password="$3" \
-    | yq -Me '.data[.dockerconfigjson]'          
+    | yq -Me '.data[.dockerconfigjson]'
 }
