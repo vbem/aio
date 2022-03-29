@@ -64,6 +64,7 @@ runs:
       env:
         STEP_CTX_GITHUB:  ${{ toJson(github) }}
         STEP_CTX_RUNNER:  ${{ toJson(runner) }}
+      shell: bash
       run: |
         source {{ steps.gen.outputs.path }}
         echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | bl::json::flatten | bl::wf::group 'github without event'
