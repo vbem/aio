@@ -67,6 +67,7 @@ runs:
       shell: bash
       run: |
         source ${{ steps.gen.outputs.path }}
+        cat ${{ steps.gen.outputs.path }}
         echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | bl::json::flatten | bl::wf::group 'github without event'
         echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | bl::json::flatten | bl::wf::group 'github.event'
         echo {'"runner"':"$STEP_CTX_RUNNER"} | bl::json::flatten | bl::wf::group 'runner'
