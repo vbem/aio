@@ -26,7 +26,7 @@ runs:
       shell: bash
       run: |
         source ${{ env.STEP_PATH }}
-        echo -n "${{ env.STEP_PATH }}" | bl::wf::output path
+        echo -n "${{ env.STEP_PATH }}" | kit::wf::output path
         
     - name: Show workflow contexts # https://docs.github.com/en/actions/learn-github-actions/contexts
       env:
