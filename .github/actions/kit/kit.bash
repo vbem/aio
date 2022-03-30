@@ -14,7 +14,7 @@ function kit::log::stderr {
         DEBUG)          level="\e[1;96m$1\e[0m" ;;
         *)              level="\e[1;94m$1\e[0m" ;;
     esac
-    echo -e "\e[2;97m[\e[0m\e[2;90m$(date -Isecond)\e[0m $level\e[2;97m]\e[0m \e[93m$2\e[0m" >&2
+    echo -e "\e[2;97m[\e[0m$level\e[2;97m]\e[0m \e[93m$2\e[0m" >&2
     #echo "[$(date -Isecond) $1] $2" >&2
 }
 
@@ -25,9 +25,9 @@ export _KIT_BASH # sourced sential
 # $1: group title
 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
 function kit::wf::group {
-    echo "::group::$1"
-    echo "$(< /dev/stdin)"
-    echo '::endgroup::'
+    echo "::group::$1"      >&2
+    echo "$(< /dev/stdin)"  >&2
+    echo '::endgroup::'     >&2
 }
 
 # Set stdin as value to environment with given name
@@ -78,7 +78,7 @@ function kit::k8s::configSet {
 
 # kubectl config view
 function kit::k8s::configView {
-    kubectl config view --raw=false | kit::wf::group "🚢 kubectl config view for KUBECONFIG='$KUBECONFIG'"
+    kubectl config view --raw=false | yq -Ce | kit::wf::group "🚢 kubectl config view for KUBECONFIG='$KUBECONFIG'"
 }
 
 # kubectl cluster-info
@@ -88,7 +88,7 @@ function kit::k8s::clusterInfo {
 
 # kubectl cluster-info
 function kit::k8s::version {
-    kubectl version -o yaml | kit::wf::group "🚢 kubectl version for KUBECONFIG='$KUBECONFIG'"
+    kubectl version -o yaml | yq -Ce | kit::wf::group "🚢 kubectl version for KUBECONFIG='$KUBECONFIG'"
 }
 
 # Initialize kube-config and test
