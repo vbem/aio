@@ -26,10 +26,10 @@ runs:
       shell: bash
       run: |
         # implementation details
-        source ${{ env.STEP_PATH }}
-        echo -n "${{ env.STEP_PATH }}" | kit::wf::output path
+        source '${{ env.STEP_PATH }}'
+        kit::wf::output 'path' <<< '${{ env.STEP_PATH }}'
         # https://docs.github.com/en/actions/learn-github-actions/contexts
-        echo {'"github"':"$STEP_CTX_GITHUB"} | jq 'del(.github.token)|del(.github.event)' | kit::json::flatten | kit::wf::group 'workflow context 👉 github without event'
-        echo "$STEP_CTX_GITHUB" | jq '{"github.event":.event}' | kit::json::flatten | kit::wf::group 'workflow context 👉 github.event'
-        echo {'"runner"':"$STEP_CTX_RUNNER"} | kit::json::flatten | kit::wf::group 'workflow context 👉 runner'
+        jq -Mcre 'del(.token)|del(.event)|{github:.}' <<< "$STEP_CTX_GITHUB" | kit::json::flatten | kit::wf::group 'workflow context 👉 "github" without "github.event"'
+        jq -Mcre '{github:{event:.event}}' <<< "$STEP_CTX_GITHUB" | kit::json::flatten | kit::wf::group 'workflow context 👉 "github.event"'
+        jq -Mcre '{runner:.}' <<< "$STEP_CTX_RUNNER" | kit::json::flatten | kit::wf::group 'workflow context 👉 "runner"'
 ...
