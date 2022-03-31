@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[[ -v _KIT_BASH ]] && return # avoid duplicated source
+_KIT_BASH="$(realpath "${BASH_SOURCE[0]}")"; declare -r _KIT_BASH # sourced sential
+
 # Log to stderr
 #   $1: level string
 #   $2: message string
@@ -18,9 +21,6 @@ function kit::log::stderr {
     #echo "[$(date -Isecond) $1] $2" >&2
 }
 
-[ -v _KIT_BASH ] && return # avoid duplicated source
-export _KIT_BASH # sourced sential
-
 # Group stdin to stdout with title
 # $1: group title
 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#grouping-log-lines
@@ -35,11 +35,11 @@ function kit::wf::group {
 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
 function kit::wf::env {
     local val
-    val=$(< /dev/stdin)
-    echo "$1<<__HEREDOC__"  >> $GITHUB_ENV
-    echo "$(< /dev/stdin)"  >> $GITHUB_ENV
-    echo '__HEREDOC__'      >> $GITHUB_ENV
-    echo -n "$val" | kit::wf::group "💲 append '$1' to \$GITHUB_ENV"
+    val="$(< /dev/stdin)"
+    echo "$1<<__HEREDOC__"  >> "$GITHUB_ENV"
+    echo "$val"             >> "$GITHUB_ENV"
+    echo '__HEREDOC__'      >> "$GITHUB_ENV"
+    kit::wf::group "💲 append '$1' to \$GITHUB_ENV" <<< "$val"
 }
 
 # Set stdin as value to output of current step with given name
@@ -48,9 +48,9 @@ function kit::wf::env {
 # https://renehernandez.io/snippets/multiline-strings-as-a-job-output-in-github-actions/
 function kit::wf::output {
     local val
-    val=$(< /dev/stdin)
-    echo "::set-output name=$1::$val"
-    echo -n "$val" | kit::wf::group "💬 set '$1' to step outputs"
+    val="$(< /dev/stdin)"
+    echo "::set-output name=$1::$val" >&2
+    kit::wf::group "💬 set '$1' to step outputs" <<< "$val"
 }
 
 # Flatten JSON to key-value lines
@@ -69,11 +69,11 @@ function kit::json::flatten {
 function kit::k8s::configSet {
     local name="$1" server="$2" ca_base64="$3" user="$4" token="$5" ctx_ns="$6"
     kit::log::stderr DEBUG "🚢 kubectl config set ... for KUBECONFIG='$KUBECONFIG'"
-    kubectl config set-cluster $name --server=$server
-    kubectl config set clusters.$name.certificate-authority-data "$ca_base64"
-    kubectl config set-credentials $user --token="$token"
-    kubectl config set-context ${user}.${name} --cluster=$name --user=$user --namespace=$ctx_ns
-    kubectl config use-context ${user}.${name}
+    kubectl config set-cluster "$name" --server="$server"
+    kubectl config set "clusters.$name.certificate-authority-data" "$ca_base64"
+    kubectl config set-credentials "$user" --token="$token"
+    kubectl config set-context "$user.$name" --cluster="$name" --user="$user" --namespace="$ctx_ns"
+    kubectl config use-context "$user.$name"
 }
 
 # kubectl config view
@@ -95,7 +95,7 @@ function kit::k8s::version {
 function kit::k8s::init {
     kit::k8s::configSet "$@"
     kit::k8s::configView && kit::k8s::version && kit::k8s::clusterInfo
-    [[ -f "$KUBECONFIG" ]] && kit::wf::env KUBECONFIG <<< "$KUBECONFIG" || true
+    [[ -v KUBECONFIG ]] && kit::wf::env 'KUBECONFIG' <<< "$KUBECONFIG" || true
 }
 
 # Get dockerconfigjson
@@ -104,7 +104,7 @@ function kit::k8s::init {
 #   $3: CR_TOKEN
 function kit::k8s::dockerconfigjson {
     kit::log::stderr DEBUG "🔑 Generating dockerconfigjson for $2@$1"
-    kubectl create secret docker-registry tmp \
+    kubectl create secret docker-registry 'tmp' \
       --dry-run=client -o yaml \
       --docker-server="$1" \
       --docker-username="$2" \
