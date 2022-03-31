@@ -69,7 +69,7 @@ jobs:
       meta-json:      ${{ steps.meta.outputs.json }}
       build-digest:   ${{ steps.build.outputs.digest }}
       build-metadata: ${{ steps.build.outputs.metadata }}
-      inspect:        ${{ steps.dig.outputs.json }}
+      inspect:        ${{ steps.dig.outputs.inspect }}
 
     steps:
       - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
@@ -139,20 +139,19 @@ jobs:
       - name: Dig local image -> ${{ env.STEP_NAME }}
         id: dig
         env:
-          STEP_NAME:    ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          STEP_INSPECT: ${{ runner.temp }}/inspect.json
-          STEP_SAVE:    ${{ runner.temp }}/image.tar.gz
+          STEP_NAME:      ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          STEP_INSPECT:   ${{ runner.temp }}/inspect.json
+          STEP_ARTIFACT:  ${{ runner.temp }}/image.tar.gz
         run: |
-          source ${{ steps.kit.outputs.path }}
-          docker image history ${{ env.STEP_NAME }} | kit::wf::group 'history'
-          docker image inspect ${{ env.STEP_NAME }} | jq -Mcre '.[]' > ${{ env.STEP_INSPECT }}
-          kit::json::flatten < ${{ env.STEP_INSPECT }} | kit::wf::group 'inspect'
-          kit::wf::output 'inspect' < ${{ env.STEP_INSPECT }}
-
-          if [ "${{ env.WF_IS_ARTIFACT }}" == "true" ]; then
-            time docker image save ${{ env.STEP_NAME }} | gzip -v > ${{ env.STEP_SAVE }}
-            ls -ald --full-time ${{ env.STEP_SAVE }}
-            kit::wf::output 'save' <<< ${{ env.STEP_SAVE }}
+          source '${{ steps.kit.outputs.path }}'
+          docker image history '${{ env.STEP_NAME }}' | kit::wf::group 'history'
+          docker image inspect '${{ env.STEP_NAME }}' | jq -Mcre '.[]' > '${{ env.STEP_INSPECT }}'
+          kit::json::flatten < '${{ env.STEP_INSPECT }}' | kit::wf::group 'inspect'
+          kit::wf::output 'inspect' < '${{ env.STEP_INSPECT }}'
+          if [[ "${{ env.WF_IS_ARTIFACT }}" == "true" ]]; then
+            time docker image save '${{ env.STEP_NAME }}' | gzip -v > '${{ env.STEP_ARTIFACT }}'
+            ls -ald --full-time '${{ env.STEP_ARTIFACT }}'
+            kit::wf::output 'artifact' <<< '${{ env.STEP_ARTIFACT }}'
           fi
 
       - if: env.WF_IS_ARTIFACT == 'true'
@@ -160,5 +159,5 @@ jobs:
         with:
           if-no-files-found: error
           path: |
-            ${{ steps.dig.outputs.save }}
+            ${{ steps.dig.outputs.artifact }}
 ...
