@@ -7,7 +7,6 @@ _KIT_BASH="$(realpath "${BASH_SOURCE[0]}")"; declare -r _KIT_BASH # sourced sent
 #   $1: level string
 #   $2: message string
 #   stderr: message string
-#   $?: 0
 function kit::log::stderr {
     local level
     case "$1" in
@@ -19,6 +18,20 @@ function kit::log::stderr {
     esac
     echo -e "\e[2;97m[\e[0m$level\e[2;97m]\e[0m \e[93m$2\e[0m" >&2
     #echo "[$(date -Isecond) $1] $2" >&2
+}
+
+# Extract host from an URL
+#   $1: URL
+function kit::str::extractHost {
+    local url="$1"
+    url="${url/#*:\/\/}" # Parameter Expansion & Pattern Matching
+    echo -n "${url/%+(:*|\/*)}"
+}
+
+# Flatten JSON to key-value lines
+#   $1: separator (default as ' 👉 ')
+function kit::json::flatten {
+    jq -Mcr --arg sep "${1:- 👉 }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($sep)\(.value|@json)"'
 }
 
 # Group stdin to stdout with title
@@ -51,12 +64,6 @@ function kit::wf::output {
     val="$(< /dev/stdin)"
     echo "::set-output name=$1::$val" >&2
     kit::wf::group "💬 set '$1' to step outputs" <<< "$val"
-}
-
-# Flatten JSON to key-value lines
-#   $1: separator (default as ' 👉 ')
-function kit::json::flatten {
-    jq -Mcr --arg sep "${1:- 👉 }" 'paths(type!="object" and type!="array") as $p | {"key":$p|join("."),"value":getpath($p)} | "\(.key)\($sep)\(.value|@json)"'
 }
 
 # Set kube-config (for service-account), you should set KUBECONFIG
