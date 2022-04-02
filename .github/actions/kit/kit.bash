@@ -23,9 +23,10 @@ function kit::log::stderr {
 # Extract host from an URL
 #   $1: URL
 function kit::str::extractHost {
-    local url="$1"
-    url="${url/#*:\/\/}" # Parameter Expansion & Pattern Matching
-    echo -n "${url/%+(:*|\/*)}"
+    local url="$1" # for Parameter Expansion & Pattern Matching
+    url="${url/#*:\/\/}"
+    url="${url/%:*}"
+    echo -n "${url/%\/*}"
 }
 
 # Flatten JSON to key-value lines
