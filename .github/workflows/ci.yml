@@ -28,7 +28,7 @@ env:
   WF_GHCR_REPO:   ${{ github.repository }}
 
   # other control variables
-  WF_IS_ARTIFACT: true
+  WF_IS_ARTIFACT: false
   TZ:             Asia/Shanghai
 
   # DON'T change these
@@ -41,7 +41,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push: # If you define neither tags(-ignore) nor branches(-ignore), the workflow will run for either branches or tags.
+  push: # If you define neither 'tags' nor 'branches', the workflow will run for either branches or tags.
     paths:
       - 'Dockerfile'
       - '.dockerignore'
