@@ -27,11 +27,13 @@ env:
   WF_GHCR_TOKEN:  ${{ secrets.GITHUB_TOKEN }}
   WF_GHCR_REPO:   ${{ github.repository }}
 
+  # other control variables
+  WF_IS_ARTIFACT: true
+  TZ:             Asia/Shanghai
+
   # DON'T change these
   WF_IS_PUSH:     ${{ github.ref_type == 'tag' || github.event.inputs.img-push == 'true' }}
   WF_IS_TAG_GEN:  ${{ github.ref_type != 'tag' && github.event.inputs.img-tag == '' }}
-  WF_IS_ARTIFACT: false
-  TZ:             Asia/Shanghai
 
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-only-cancel-in-progress-jobs-or-runs-for-the-current-workflow
 concurrency:
@@ -69,53 +71,54 @@ jobs:
       meta-json:      ${{ steps.meta.outputs.json }}
       build-digest:   ${{ steps.build.outputs.digest }}
       build-metadata: ${{ steps.build.outputs.metadata }}
-      inspect:        ${{ steps.dig.outputs.inspect }}
 
     steps:
-      - uses: actions/checkout@v3 # https://github.com/marketplace/actions/checkout
+      # https://github.com/marketplace/actions/checkout
+      - uses: actions/checkout@v3
 
-      - name: Load kit script
-        id: kit
-        uses: ./.github/actions/kit
+      # https://github.com/marketplace/actions/flatten-contexts
+      - uses: vbem/flatten-contexts@v1
 
+      # https://github.com/marketplace/actions/docker-metadata-action
       - name: Extract metadata from Git reference and GitHub events -> ${{ github.ref }}@${{ github.event_name }}
         id: meta
-        uses: docker/metadata-action@v3 # https://github.com/marketplace/actions/docker-metadata-action
+        uses: docker/metadata-action@v3
         with:
-          images: |
+          images: | # https://semver.org/
             ${{ env.WF_CR_HOST }}/${{ env.WF_CR_REPO }}
             ${{ env.WF_GHCR_HOST }}/${{ env.WF_GHCR_REPO }}
-          # https://semver.org/
-          # https://momentjs.com/docs/#/displaying/format/
-          tags: |
+          tags: | # https://momentjs.com/docs/#/displaying/format/
             type=semver,pattern={{version}}
             type=raw,value=${{ github.event.inputs.img-tag }},enable=${{ github.event.inputs.img-tag != '' }}
             type=raw,value=0.${{ github.run_number }}.${{ github.run_attempt }}-time.{{date 'YYYYMMDDHHmmssz'}}.sha.{{sha}},enable=${{ env.WF_IS_TAG_GEN }}
-          # https://github.com/opencontainers/image-spec/blob/master/annotations.md
-          labels: |
+          labels: | # https://github.com/opencontainers/image-spec/blob/master/annotations.md
             org.opencontainers.image.vendor=${{ github.repository_owner }}
 
+      # https://github.com/marketplace/actions/docker-login
       - name: Login remote container registry -> ${{ env.WF_CR_USER }}@${{ env.WF_CR_HOST }}
-        uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
+        uses: docker/login-action@v1
         with:
           registry: ${{ env.WF_CR_HOST }}
           username: ${{ env.WF_CR_USER }}
           password: ${{ env.WF_CR_TOKEN }}
 
+      # https://github.com/marketplace/actions/docker-login
       - name: Login remote container registry -> ${{ env.WF_GHCR_USER }}@${{ env.WF_GHCR_HOST }}
-        uses: docker/login-action@v1 # https://github.com/marketplace/actions/docker-login
+        uses: docker/login-action@v1
         with:
           registry: ${{ env.WF_GHCR_HOST }}
           username: ${{ env.WF_GHCR_USER }}
           password: ${{ env.WF_GHCR_TOKEN }}
 
-      - uses: docker/setup-buildx-action@v1 # https://github.com/marketplace/actions/docker-setup-buildx
+      # https://github.com/marketplace/actions/docker-setup-buildx
+      - uses: docker/setup-buildx-action@v1
         with:
           driver: docker # https://github.com/docker/setup-buildx-action/issues/55
 
+      # https://github.com/marketplace/actions/build-and-push-docker-images
       - name: Build image with push=${{ env.WF_IS_PUSH }} -> ${{ join(fromJSON(steps.meta.outputs.json).tags, ' & ') }}
         id: build
-        uses: docker/build-push-action@v2 # https://github.com/marketplace/actions/build-and-push-docker-images
+        uses: docker/build-push-action@v2
         with:
           context: .
           pull: true
@@ -123,11 +126,11 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Update a Docker Hub description -> https://hub.docker.com/r/${{ github.repository }}
+      # https://github.com/marketplace/actions/docker-hub-description
+      # https://github.com/peter-evans/dockerhub-description/tree/v3.0.0
+      # https://docs.github.com/en/actions/learn-github-actions/finding-and-customizing-actions#using-release-management-for-your-custom-actions
+      - name: Update Docker Hub description -> https://hub.docker.com/r/${{ github.repository }}
         if: ${{ env.WF_IS_PUSH }}
-        # https://docs.github.com/en/actions/learn-github-actions/finding-and-customizing-actions#using-release-management-for-your-custom-actions
-        # https://github.com/marketplace/actions/docker-hub-description
-        # https://github.com/peter-evans/dockerhub-description/tree/v3.0.0
         uses: peter-evans/dockerhub-description@836d7e6aa8f6f32dce26f5a1dd46d3dc24997eae
         with:
           username: ${{ github.repository_owner }}
@@ -136,28 +139,32 @@ jobs:
           #repository: ${{ github.repository }}
           #readme-filepath: ./README.md
 
+      # https://github.com/marketplace/actions/kit.bash
+      - uses: vbem/kit.bash@main
+        id: kit
+
       - name: Dig local image -> ${{ env.STEP_NAME }}
         id: dig
         env:
-          STEP_NAME:      ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          STEP_INSPECT:   ${{ runner.temp }}/inspect.json
-          STEP_ARTIFACT:  ${{ runner.temp }}/image.tar.gz
+          STEP_NAME:    ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          STEP_ARCHIVE: ${{ runner.temp }}/image.tar.gz
         run: |
-          source '${{ steps.kit.outputs.path }}'
-          docker image history '${{ env.STEP_NAME }}' | kit::wf::group 'history'
-          docker image inspect '${{ env.STEP_NAME }}' | jq -Mcre '.[]' > '${{ env.STEP_INSPECT }}'
-          kit::json::flatten < '${{ env.STEP_INSPECT }}' | kit::wf::group 'inspect'
-          kit::wf::output 'inspect' < '${{ env.STEP_INSPECT }}'
+          ${{ steps.kit.outputs.source }}
+          docker image history '${{ env.STEP_NAME }}' | kit::wf::group '🐳 `docker image history`'
+          docker image inspect '${{ env.STEP_NAME }}' | jq -Mcre '.[]' | kit::json::flatten \
+            | kit::wf::group '🐳 `docker image inspect`'
           if [[ "${{ env.WF_IS_ARTIFACT }}" == "true" ]]; then
-            time docker image save '${{ env.STEP_NAME }}' | gzip -v > '${{ env.STEP_ARTIFACT }}'
-            ls -ald --full-time '${{ env.STEP_ARTIFACT }}'
-            kit::wf::output 'artifact' <<< '${{ env.STEP_ARTIFACT }}'
+            kit::log::stderr INFO "🐳 Saving image to archive -> ${{ env.STEP_ARCHIVE }}"
+            time docker image save '${{ env.STEP_NAME }}' | gzip -v > '${{ env.STEP_ARCHIVE }}'
+            ls -ald --full-time '${{ env.STEP_ARCHIVE }}'
+            kit::wf::output 'archive' grouped <<< '${{ env.STEP_ARCHIVE }}'
           fi
 
+      # https://github.com/marketplace/actions/upload-a-build-artifact
       - if: env.WF_IS_ARTIFACT == 'true'
-        uses: actions/upload-artifact@v3 # https://github.com/marketplace/actions/upload-a-build-artifact
+        uses: actions/upload-artifact@v3
         with:
           if-no-files-found: error
           path: |
-            ${{ steps.dig.outputs.artifact }}
+            ${{ steps.dig.outputs.archive }}
 ...
