@@ -130,7 +130,7 @@ jobs:
       # https://github.com/peter-evans/dockerhub-description/tree/v3.0.0
       # https://docs.github.com/en/actions/learn-github-actions/finding-and-customizing-actions#using-release-management-for-your-custom-actions
       - name: Update Docker Hub description -> https://hub.docker.com/r/${{ github.repository }}
-        if: ${{ env.WF_IS_PUSH }}
+        if: env.WF_IS_PUSH == "true"
         uses: peter-evans/dockerhub-description@836d7e6aa8f6f32dce26f5a1dd46d3dc24997eae
         with:
           username: ${{ github.repository_owner }}
@@ -150,9 +150,9 @@ jobs:
           STEP_ARCHIVE: ${{ runner.temp }}/image.tar.gz
         run: |
           ${{ steps.kit.outputs.source }}
-          docker image history '${{ env.STEP_NAME }}' | kit::wf::group '🐳 `docker image history`'
+          docker image history '${{ env.STEP_NAME }}' | kit::wf::group "🐳 docker image history"
           docker image inspect '${{ env.STEP_NAME }}' | jq -Mcre '.[]' | kit::json::flatten \
-            | kit::wf::group '🐳 `docker image inspect`'
+            | kit::wf::group "🐳 docker image inspect"
           if [[ "${{ env.WF_IS_ARTIFACT }}" == "true" ]]; then
             kit::log::stderr INFO "🐳 Saving image to archive -> ${{ env.STEP_ARCHIVE }}"
             time docker image save '${{ env.STEP_NAME }}' | gzip -v > '${{ env.STEP_ARCHIVE }}'
