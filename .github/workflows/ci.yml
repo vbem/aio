@@ -146,18 +146,14 @@ jobs:
       - name: Dig local image -> ${{ env.STEP_NAME }}
         id: dig
         env:
-          STEP_NAME:    ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          STEP_ARCHIVE: ${{ runner.temp }}/image.tar.gz
+          STEP_NAME: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
           ${{ steps.kit.outputs.source }}
-          docker image history '${{ env.STEP_NAME }}' | kit::wf::group "🐳 docker image history"
-          docker image inspect '${{ env.STEP_NAME }}' | jq -Mcre '.[]' | kit::json::flatten \
-            | kit::wf::group "🐳 docker image inspect"
+          kit::docker::imageHistory '${{ env.STEP_NAME }}'
+          kit::docker::imageInspect '${{ env.STEP_NAME }}'
           if [[ "${{ env.WF_IS_ARTIFACT }}" == "true" ]]; then
-            kit::log::stderr INFO "🐳 Saving image to archive -> ${{ env.STEP_ARCHIVE }}"
-            time docker image save '${{ env.STEP_NAME }}' | gzip -v > '${{ env.STEP_ARCHIVE }}'
-            ls -ald --full-time '${{ env.STEP_ARCHIVE }}'
-            kit::wf::output 'archive' grouped <<< '${{ env.STEP_ARCHIVE }}'
+            archive="$(kit::docker::imageSave '${{ env.STEP_NAME }}')"
+            kit::wf::output 'archive' <<< "$archive"
           fi
 
       # https://github.com/marketplace/actions/upload-a-build-artifact
