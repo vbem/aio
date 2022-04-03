@@ -78,6 +78,7 @@ jobs:
 
       # https://github.com/marketplace/actions/flatten-contexts
       - uses: vbem/flatten-contexts@v1
+        continue-on-error: true
 
       # https://github.com/marketplace/actions/docker-metadata-action
       - name: Extract metadata from Git reference and GitHub events -> ${{ github.ref }}@${{ github.event_name }}
@@ -139,8 +140,8 @@ jobs:
           #repository: ${{ github.repository }}
           #readme-filepath: ./README.md
 
-      # https://github.com/marketplace/actions/kit.bash
-      - uses: vbem/kit.bash@main
+      # https://github.com/marketplace/actions/kit-bash
+      - uses: vbem/kit.bash@v1
         id: kit
 
       - name: Dig local image -> ${{ env.STEP_NAME }}
