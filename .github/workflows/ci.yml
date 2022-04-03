@@ -130,7 +130,7 @@ jobs:
       # https://github.com/peter-evans/dockerhub-description/tree/v3.0.0
       # https://docs.github.com/en/actions/learn-github-actions/finding-and-customizing-actions#using-release-management-for-your-custom-actions
       - name: Update Docker Hub description -> https://hub.docker.com/r/${{ github.repository }}
-        if: env.WF_IS_PUSH == "true"
+        if: env.WF_IS_PUSH == 'true'
         uses: peter-evans/dockerhub-description@836d7e6aa8f6f32dce26f5a1dd46d3dc24997eae
         with:
           username: ${{ github.repository_owner }}
